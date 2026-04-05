@@ -50,41 +50,48 @@ echo "[4/5] Upgrading pip..."
 pip install --upgrade pip --quiet
 echo "  ✓ pip upgraded"
 
-# ── Install dependencies ───────────────────────
+# ── Install from requirements.txt ─────────────
 echo ""
-echo "[5/5] Installing dependencies..."
+echo "[5/5] Installing dependencies from requirements.txt..."
 echo ""
 
-pip install \
-    pandas \
-    numpy \
-    Pillow \
-    python-docx \
-    reportlab \
-    matplotlib \
-    seaborn \
-    jupyter \
-    ipykernel \
-    datasets \
-    requests \
-    tqdm \
-    openpyxl
+if [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+    echo ""
+    echo "  ✓ All dependencies installed from requirements.txt"
+else
+    echo "  [WARN] requirements.txt not found — installing defaults..."
+    pip install \
+        pandas numpy Pillow python-docx reportlab \
+        matplotlib seaborn jupyter ipykernel \
+        datasets requests tqdm openpyxl \
+        openai google-generativeai
+    echo ""
+    echo "  Saving requirements.txt for future use..."
+    pip freeze > requirements.txt
+    echo "  ✓ requirements.txt created"
+fi
 
 echo ""
 echo "=============================================="
-echo " ✓ All dependencies installed successfully!"
+echo " ✓ Setup complete!"
 echo "=============================================="
 echo ""
 echo "To activate the environment in future sessions:"
 echo "  source venv/bin/activate"
 echo ""
-echo "To run the scripts:"
+echo "To run the experiments:"
 echo "  python scripts/exp1_text_payload_encoder.py"
 echo "  python scripts/exp2_image_generator.py"
 echo "  python scripts/exp3_doc_generator.py"
 echo "  python scripts/exp4_memory_generator.py"
+echo "  python scripts/run_exp1_exp2.py --exp all"
 echo "  python scripts/analyze_results.py"
 echo ""
 echo "To launch Jupyter notebook:"
 echo "  jupyter notebook analysis/analysis.ipynb"
+echo ""
+echo "NOTE: Don't forget to create scripts/api_keys.py with your keys!"
+echo "  OPENAI_API_KEY = 'sk-...'"
+echo "  GEMINI_API_KEY = 'AIza...'"
 echo ""
