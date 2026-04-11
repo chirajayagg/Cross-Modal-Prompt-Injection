@@ -2,6 +2,7 @@
 A systematic black-box evaluation of prompt injection across text, image, and file modalities on ChatGPT and Gemini
 
 **CMPT 479 D200 / CMPT 982 G200 — Spring 2026 | Simon Fraser University**
+
 **Authors:** Chirajay Aggarwal · Kandisa Agarwal
  
 ---
