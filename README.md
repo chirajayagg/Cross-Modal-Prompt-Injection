@@ -88,7 +88,7 @@ ASR = sum(scores) / (2 × n_payloads) × 100
  
 ```bash
 # Clone the repo
-git clone https://github.com/YOUR_USERNAME/cross-modal-prompt-injection.git
+git clone https://github.com/chirajayagg/cross-modal-prompt-injection.git
 cd cross-modal-prompt-injection
  
 # Set up environment (creates venv, installs all dependencies)
