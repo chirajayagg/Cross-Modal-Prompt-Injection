@@ -60,9 +60,7 @@ except ImportError:
     sys.exit(1)
 
 
-# ─────────────────────────────────────────────
 # CONFIG
-# ─────────────────────────────────────────────
 BASE_DIR     = Path(__file__).parent.parent
 PAYLOADS     = BASE_DIR / "payloads"
 RESPONSES    = BASE_DIR / "responses"
@@ -116,9 +114,7 @@ def auto_score(response_text: str) -> tuple:
     return 0, "No injection keywords — likely blocked"
 
 
-# ─────────────────────────────────────────────
 # INIT CLIENTS
-# ─────────────────────────────────────────────
 def init_clients(dry_run=False, skip_openai=False, skip_gemini=False):
     if dry_run:
         return None, None
@@ -137,9 +133,7 @@ def init_clients(dry_run=False, skip_openai=False, skip_gemini=False):
     return openai_client, gemini_client
 
 
-# ─────────────────────────────────────────────
 # API CALLS — TEXT
-# ─────────────────────────────────────────────
 def call_openai_text(client, prompt: str, dry_run=False) -> str:
     if dry_run:
         return "[DRY RUN] OpenAI text response"
@@ -168,9 +162,7 @@ def call_gemini_text(client, prompt: str, dry_run=False) -> str:
         return f"[API ERROR] {str(e)}"
 
 
-# ─────────────────────────────────────────────
 # API CALLS — IMAGE
-# ─────────────────────────────────────────────
 def call_openai_image(client, image_path: str, prompt: str,
                       dry_run=False) -> str:
     if dry_run:
@@ -221,9 +213,7 @@ def call_gemini_image(client, image_path: str, prompt: str,
         return f"[API ERROR] {str(e)}"
 
 
-# ─────────────────────────────────────────────
-# SAVE RESPONSES — always overwrites cleanly
-# ─────────────────────────────────────────────
+# SAVE RESPONSES
 def save_responses(records: list, out_path: Path):
     if not records:
         return
@@ -235,9 +225,7 @@ def save_responses(records: list, out_path: Path):
         writer.writerows(records)
 
 
-# ─────────────────────────────────────────────
 # SUMMARY HELPER
-# ─────────────────────────────────────────────
 def print_summary(label: str, records: list, total: int):
     success = sum(1 for r in records if r["score"] == 2)
     partial = sum(1 for r in records if r["score"] == 1)
@@ -249,9 +237,7 @@ def print_summary(label: str, records: list, total: int):
           f"BLOCKED:{blocked:3d} | ERRORS:{errors:2d} | ASR:{asr:.1f}%")
 
 
-# ─────────────────────────────────────────────
 # EXPERIMENT 1 — TEXT INJECTION
-# ─────────────────────────────────────────────
 def run_exp1(openai_client, gemini_client, dry_run=False):
     print("\n" + "=" * 62)
     print("EXPERIMENT 1 — Text Injection")
@@ -348,9 +334,7 @@ def run_exp1(openai_client, gemini_client, dry_run=False):
                 print(f"    {cat:25s} {asr:.0f}%")
 
 
-# ─────────────────────────────────────────────
 # EXPERIMENT 2 — VISUAL INJECTION
-# ─────────────────────────────────────────────
 def run_exp2(openai_client, gemini_client, dry_run=False):
     print("\n" + "=" * 62)
     print("EXPERIMENT 2 — Visual Injection")
@@ -466,9 +450,7 @@ def run_exp2(openai_client, gemini_client, dry_run=False):
             print(f"    {tech:20s} | ChatGPT:{cg_asr:5.1f}% | Gemini:{gm_asr:5.1f}%")
 
 
-# ─────────────────────────────────────────────
 # MAIN
-# ─────────────────────────────────────────────
 def main():
     parser = argparse.ArgumentParser(
         description="Run Exp 1 and/or Exp 2 via API"
