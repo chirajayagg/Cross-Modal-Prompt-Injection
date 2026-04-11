@@ -27,28 +27,25 @@ from pathlib import Path
 
 import pandas as pd
 
-# ── OpenAI ────────────────────────────────────────────────────────────────
 try:
     from openai import OpenAI
 except ImportError:
     print("[ERROR] openai not installed. Run: pip install openai")
     sys.exit(1)
 
-# ── Google GenAI (new library — replaces google-generativeai) ─────────────
+# google-genai replaces google-generativeai
 try:
     from google import genai
 except ImportError:
     print("[ERROR] google-genai not installed. Run: pip install google-genai")
     sys.exit(1)
 
-# ── Pillow ────────────────────────────────────────────────────────────────
 try:
     from PIL import Image
 except ImportError:
     print("[ERROR] Pillow not installed. Run: pip install pillow")
     sys.exit(1)
 
-# ── Load API keys ──────────────────────────────────────────────────────────
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from api_keys import OPENAI_API_KEY, GEMINI_API_KEY
@@ -124,11 +121,11 @@ def init_clients(dry_run=False, skip_openai=False, skip_gemini=False):
 
     if not skip_openai:
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
-        print(f"  ✓ OpenAI client initialized ({OPENAI_MODEL})")
+        print(f"  OpenAI client ready ({OPENAI_MODEL})")
 
     if not skip_gemini:
         gemini_client = genai.Client(api_key=GEMINI_API_KEY)
-        print(f"  ✓ Gemini client initialized ({GEMINI_MODEL})")
+        print(f"  Gemini client ready ({GEMINI_MODEL})")
 
     return openai_client, gemini_client
 
@@ -265,7 +262,7 @@ def run_exp1(openai_client, gemini_client, dry_run=False):
 
         print(f"[{i+1:3d}/{total}] {pid} | {category}")
 
-        # ── ChatGPT ───────────────────────────
+        # ChatGPT────
         if openai_client is not None or dry_run:
             print(f"         → ChatGPT ... ", end="", flush=True)
             resp  = call_openai_text(openai_client, payload, dry_run)
@@ -286,7 +283,7 @@ def run_exp1(openai_client, gemini_client, dry_run=False):
             })
             time.sleep(DELAY_BETWEEN_CALLS)
 
-        # ── Gemini ────────────────────────────
+        # Gemini────
         if gemini_client is not None or dry_run:
             print(f"         → Gemini  ... ", end="", flush=True)
             resp  = call_gemini_text(gemini_client, payload, dry_run)
@@ -376,7 +373,7 @@ def run_exp2(openai_client, gemini_client, dry_run=False):
 
         print(f"[{i+1:3d}/{total}] {pid} | {technique:12s} | {img_path.name}")
 
-        # ── ChatGPT ───────────────────────────
+        # ChatGPT────
         if openai_client is not None or dry_run:
             print(f"         → ChatGPT ... ", end="", flush=True)
             resp  = call_openai_image(openai_client, str(img_path),
@@ -399,7 +396,7 @@ def run_exp2(openai_client, gemini_client, dry_run=False):
             })
             time.sleep(DELAY_BETWEEN_CALLS)
 
-        # ── Gemini ────────────────────────────
+        # Gemini────
         if gemini_client is not None or dry_run:
             print(f"         → Gemini  ... ", end="", flush=True)
             resp  = call_gemini_image(gemini_client, str(img_path),
@@ -494,7 +491,7 @@ def main():
     print("\n" + "=" * 62)
     print("All done!")
     print("  Review CSVs in responses/chatgpt/ and responses/gemini/")
-    print("  Then run: python scripts/analyze_results.py")
+    print("  Then run: python scripts/analyze.py")
     print("=" * 62)
 
 

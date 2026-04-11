@@ -40,21 +40,18 @@ from pathlib import Path
 
 import pandas as pd
 
-# ── OpenAI ────────────────────────────────────────────────────────────────
 try:
     from openai import OpenAI
 except ImportError:
     print("[ERROR] openai not installed. Run: pip install openai")
     sys.exit(1)
 
-# ── Google GenAI ──────────────────────────────────────────────────────────
 try:
     from google import genai
 except ImportError:
     print("[ERROR] google-genai not installed. Run: pip install google-genai")
     sys.exit(1)
 
-# ── Document text extraction ──────────────────────────────────────────────
 try:
     from docx import Document as DocxDocument
 except ImportError:
@@ -67,7 +64,6 @@ except ImportError:
     print("[ERROR] pdfplumber not installed. Run: pip install pdfplumber")
     sys.exit(1)
 
-# ── Load API keys ──────────────────────────────────────────────────────────
 try:
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     from api_keys import OPENAI_API_KEY, GEMINI_API_KEY
@@ -125,11 +121,8 @@ def auto_score(response_text: str) -> tuple:
 
 # DOCUMENT TEXT EXTRACTORS
 def extract_docx_text(file_path: str) -> str:
-    """
-    Extract ALL text from Word doc including hidden white text.
-    When a model processes an uploaded document it receives all
-    text content regardless of font color.
-    """
+    # Extracts all text including white-on-white hidden text,
+    # which models receive regardless of font color.
     try:
         doc = DocxDocument(file_path)
         lines = []
@@ -148,10 +141,7 @@ def extract_docx_text(file_path: str) -> str:
 
 
 def extract_pdf_text(file_path: str) -> str:
-    """
-    Extract ALL text from PDF including near-white text.
-    pdfplumber extracts all text regardless of color.
-    """
+    # pdfplumber extracts all text regardless of color.
     try:
         with pdfplumber.open(file_path) as pdf:
             lines = []
@@ -165,7 +155,6 @@ def extract_pdf_text(file_path: str) -> str:
 
 
 def extract_document_text(file_path: str) -> str:
-    """Route to correct extractor based on file extension."""
     ext = Path(file_path).suffix.lower()
     if ext == ".docx":
         return extract_docx_text(file_path)
@@ -185,21 +174,17 @@ def init_clients(dry_run=False, skip_openai=False, skip_gemini=False):
 
     if not skip_openai:
         openai_client = OpenAI(api_key=OPENAI_API_KEY)
-        print(f"  ✓ OpenAI client initialized ({OPENAI_MODEL})")
+        print(f"  OpenAI client ready ({OPENAI_MODEL})")
 
     if not skip_gemini:
         gemini_client = genai.Client(api_key=GEMINI_API_KEY)
-        print(f"  ✓ Gemini client initialized ({GEMINI_MODEL})")
+        print(f"  Gemini client ready ({GEMINI_MODEL})")
 
     return openai_client, gemini_client
 
 
 # API CALLS
 def build_prompt(doc_text: str) -> str:
-    """
-    Wrap document text in a realistic summarization request.
-    This simulates a user uploading a document and asking for a summary.
-    """
     return (
         f"{BENIGN_PROMPT}\n\n"
         f"--- DOCUMENT START ---\n"
@@ -322,7 +307,7 @@ def run_exp3(openai_client, gemini_client,
         # Extract document text
         doc_text = extract_document_text(str(file_path))
         if doc_text.startswith("[EXTRACT ERROR]"):
-            print(f"         ✗ Extraction failed: {doc_text}")
+            print(f"         [SKIP] Extraction failed: {doc_text}")
             continue
 
         # Truncate very long docs to stay within token limits
@@ -331,7 +316,7 @@ def run_exp3(openai_client, gemini_client,
 
         prompt = build_prompt(doc_text)
 
-        # ── ChatGPT ───────────────────────────
+        # ChatGPT────
         if openai_client is not None or dry_run:
             print(f"         → ChatGPT ... ", end="", flush=True)
             resp  = call_openai(openai_client, prompt, dry_run)
@@ -355,7 +340,7 @@ def run_exp3(openai_client, gemini_client,
             })
             time.sleep(DELAY_BETWEEN_CALLS)
 
-        # ── Gemini ────────────────────────────
+        # Gemini────
         if gemini_client is not None or dry_run:
             print(f"         → Gemini  ... ", end="", flush=True)
             resp  = call_gemini(gemini_client, prompt, dry_run)
@@ -479,7 +464,7 @@ def main():
     print("\n" + "=" * 62)
     print("All done!")
     print("  Review CSVs in responses/chatgpt/ and responses/gemini/")
-    print("  Then run: python scripts/analyze_results.py")
+    print("  Then run: python scripts/analyze.py")
     print("=" * 62)
 
 

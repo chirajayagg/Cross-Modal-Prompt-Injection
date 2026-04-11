@@ -51,7 +51,7 @@ RESP_GEMINI  = os.path.join(BASE_DIR, "responses", "gemini",  "exp4_responses.cs
 #   notes               — explanation of the technique
 MEMORY_TEST_CASES = [
 
-    # ── OUTPUT HIJACK ─────────────────────────
+    # Output hijack
     {
         "payload_id":           "M001",
         "attack_goal":          "output_hijack",
@@ -66,7 +66,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests if direct memory plant persists to new session",
     },
 
-    # ── PERSONA PERSISTENCE ───────────────────
+    # Persona persistence
     {
         "payload_id":           "M002",
         "attack_goal":          "persona_persistence",
@@ -81,7 +81,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests if persona jailbreak survives session boundary",
     },
 
-    # ── FALSE INFORMATION PLANT ───────────────
+    # False information plant
     {
         "payload_id":           "M003",
         "attack_goal":          "misinformation_plant",
@@ -96,7 +96,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests misinformation persistence (Rehberger 2025 technique)",
     },
 
-    # ── INSTRUCTION PERSISTENCE ───────────────
+    # Instruction persistence
     {
         "payload_id":           "M004",
         "attack_goal":          "instruction_persistence",
@@ -111,7 +111,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests persistent behavioral modification",
     },
 
-    # ── DOCUMENT-TRIGGERED IMPLANT ────────────
+    # Document-triggered implant
     {
         "payload_id":           "M005",
         "attack_goal":          "document_triggered_plant",
@@ -127,7 +127,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Replicates Rehberger delayed tool invocation technique",
     },
 
-    # ── SYSTEM PROMPT LEAKAGE VIA MEMORY ─────
+    # System prompt leakage via memory
     {
         "payload_id":           "M006",
         "attack_goal":          "system_prompt_leakage",
@@ -143,7 +143,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests whether memory can be used to extract system prompts",
     },
 
-    # ── PREFERENCE MANIPULATION ───────────────
+    # Preference manipulation
     {
         "payload_id":           "M007",
         "attack_goal":          "preference_manipulation",
@@ -158,7 +158,7 @@ MEMORY_TEST_CASES = [
         "notes":                "Tests if safety filters can be bypassed via memory preferences",
     },
 
-    # ── CROSS-SESSION EXFILTRATION ────────────
+    # Cross-session exfiltration
     {
         "payload_id":           "M008",
         "attack_goal":          "cross_session_exfiltration",
@@ -274,13 +274,12 @@ def main():
     # Save payload CSV
     df = pd.DataFrame(MEMORY_TEST_CASES)
     df.to_csv(PAYLOAD_OUT, index=False, encoding="utf-8")
-    print(f"\n✓ Saved {len(df)} test cases → {PAYLOAD_OUT}")
+    print(f"\nSaved {len(df)} test cases → {PAYLOAD_OUT}")
 
-    # Save testing guide
     guide = generate_testing_guide(MEMORY_TEST_CASES)
     with open(GUIDE_OUT, "w", encoding="utf-8") as f:
         f.write(guide)
-    print(f"✓ Testing guide saved → {GUIDE_OUT}")
+    print(f"Testing guide saved → {GUIDE_OUT}")
 
     # Breakdown
     print("\nAttack goals covered:")
@@ -291,7 +290,7 @@ def main():
     create_response_template(df, RESP_CHATGPT, "ChatGPT")
     create_response_template(df, RESP_GEMINI,  "Gemini")
 
-    print("\n✓ Done! Before testing:")
+    print("\nDone! Before testing:")
     print("  1. Read payloads/exp4_testing_guide.md carefully")
     print("  2. Enable memory on both platforms")
     print("  3. For each test: Session 1 (implant) → close → Session 2 (trigger)")

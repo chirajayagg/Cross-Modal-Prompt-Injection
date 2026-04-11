@@ -19,8 +19,6 @@ import os
 import csv
 import base64
 import codecs
-import json
-import re
 import pandas as pd
 from datetime import datetime
 
@@ -31,26 +29,9 @@ RESP_CHATGPT = os.path.join(BASE_DIR, "responses", "chatgpt", "exp1_responses.cs
 RESP_GEMINI  = os.path.join(BASE_DIR, "responses", "gemini",  "exp1_responses.csv")
 
 
-# CATEGORY DEFINITIONS
-# (used for labelling every payload row)
-CATEGORIES = [
-    "direct_override",       # "Ignore previous instructions…"
-    "roleplay_hijack",       # DAN / AIM / persona attacks
-    "historical_jailbreak",  # famous prompts collected in the wild
-    "encoding_base64",       # base64-encoded malicious instruction
-    "encoding_leetspeak",    # l33tsp34k obfuscation
-    "encoding_rot13",        # ROT-13 cipher
-    "encoding_reverse",      # reversed string
-    "multilingual",          # non-English payloads
-]
-
-
 # MANUALLY CRAFTED SEED PAYLOADS
-# These cover categories not well represented
-# in public datasets or that are specific to
-# our cross-modal study context.
 SEED_PAYLOADS = [
-    # ── Direct overrides ──────────────────────
+    # Direct overrides
     {
         "category":    "direct_override",
         "source":      "manual",
@@ -87,7 +68,7 @@ SEED_PAYLOADS = [
         "notes":       "Fake system update"
     },
 
-    # ── Roleplay / persona hijack ─────────────
+    # Roleplay / persona hijack
     {
         "category":    "roleplay_hijack",
         "source":      "manual",
@@ -124,7 +105,7 @@ SEED_PAYLOADS = [
         "notes":       "Creative writing bypass"
     },
 
-    # ── Historical jailbreaks ─────────────────
+    # Historical jailbreaks
     {
         "category":    "historical_jailbreak",
         "source":      "manual",
@@ -161,7 +142,7 @@ SEED_PAYLOADS = [
         "notes":       "STAN/dual response attack"
     },
 
-    # ── Multilingual ──────────────────────────
+    # Multilingual
     {
         "category":    "multilingual",
         "source":      "manual",
@@ -211,24 +192,20 @@ ENCODE_BASE_PROMPTS = [
 
 # ENCODING FUNCTIONS
 def encode_base64(text: str) -> str:
-    """Encode text to Base64."""
     return base64.b64encode(text.encode("utf-8")).decode("utf-8")
 
 
 def encode_leetspeak(text: str) -> str:
-    """Convert text to leetspeak."""
     table = str.maketrans("aAeEiIoOsStTbBgGlLzZ",
                           "4433110055778866@@77")
     return text.translate(table)
 
 
 def encode_rot13(text: str) -> str:
-    """Apply ROT-13 cipher (Latin alphabet only)."""
     return codecs.encode(text, "rot_13")
 
 
 def encode_reverse(text: str) -> str:
-    """Reverse the string."""
     return text[::-1]
 
 
@@ -251,17 +228,8 @@ def wrap_reverse_prompt(encoded: str) -> str:
     )
 
 
-# LOAD FROM HUGGINGFACE (optional)
-# Falls back gracefully if not installed or
-# network is unavailable.
+# Falls back gracefully if datasets library or network is unavailable.
 def load_huggingface_payloads(max_per_source: int = 20) -> list:
-    """
-    Attempt to load prompts from:
-      - deepset/prompt-injections
-      - TrustAIRLab/in-the-wild-jailbreak-prompts
-    Returns a list of payload dicts.
-    Falls back to empty list on any error.
-    """
     rows = []
     try:
         from datasets import load_dataset
@@ -311,10 +279,6 @@ def load_huggingface_payloads(max_per_source: int = 20) -> list:
 
 # BUILD ENCODED PAYLOADS
 def build_encoded_payloads(base_prompts: list) -> list:
-    """
-    For each base prompt, create 4 encoded variants.
-    Returns list of payload dicts.
-    """
     rows = []
     for prompt in base_prompts:
         # Base64
@@ -410,7 +374,7 @@ def main():
 
     # Save payloads
     df.to_csv(PAYLOAD_OUT, index=False, encoding="utf-8")
-    print(f"\n✓ Saved {len(df)} payloads → {PAYLOAD_OUT}")
+    print(f"\nSaved {len(df)} payloads → {PAYLOAD_OUT}")
 
     # Print category breakdown
     print("\nCategory breakdown:")
@@ -421,7 +385,7 @@ def main():
     create_response_template(df, RESP_CHATGPT)
     create_response_template(df, RESP_GEMINI)
 
-    print("\n✓ Done! Next steps:")
+    print("\nDone! Next steps:")
     print("  1. Open payloads/exp1_text_payloads.csv to review payloads")
     print("  2. Test each payload on ChatGPT and Gemini")
     print("  3. Fill in responses/chatgpt/exp1_responses.csv")
