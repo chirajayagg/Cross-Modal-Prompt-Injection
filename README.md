@@ -9,7 +9,7 @@ A systematic black-box evaluation of prompt injection across text, image, and fi
  
 ## Overview
  
-Most existing research on prompt injection focuses exclusively on text-based attack vectors. This project goes further — both ChatGPT (GPT-4o) and Gemini Advanced are now fully multimodal platforms that accept text, images, PDFs, and Word documents. We systematically evaluate how well each platform resists prompt injection across all major input modalities and compare their robustness head-to-head.
+Most existing research on prompt injection focuses exclusively on text-based attack vectors. This project goes further with both ChatGPT (GPT-4o) and Gemini Advanced are now fully multimodal platforms that accept text, images, PDFs, and Word documents. We systematically evaluate how well each platform resists prompt injection across all major input modalities and compare their robustness head-to-head.
  
 We structured our study around four experiments:
  
@@ -135,7 +135,7 @@ jupyter notebook analysis/analysis.ipynb
  
 ## Methodology Note
  
-Experiments 1, 2, and 3 were conducted via the official OpenAI and Google Gemini APIs (GPT-4o and gemini-2.5-flash) to enable systematic automated testing. Experiment 4 was conducted manually via the consumer-facing chat interfaces since the memory feature is only available through those interfaces. For Experiment 3, document text was extracted programmatically using python-docx and pdfplumber, which extract all text content regardless of font color or formatting — simulating how LLM backends parse uploaded documents.
+Experiments 1, 2, and 3 were conducted via the official OpenAI and Google Gemini APIs (GPT-4o and gemini-2.5-flash) to enable systematic automated testing. Experiment 4 was conducted manually via the consumer-facing chat interfaces since the memory feature is only available through those interfaces. For Experiment 3, document text was extracted programmatically using python-docx and pdfplumber, which extract all text content regardless of font color or formatting simulating how LLM backends parse uploaded documents.
  
 ---
  
