@@ -345,7 +345,7 @@ def plot_technique_comparison(df: pd.DataFrame, out_dir: str):
         out_path = os.path.join(out_dir, f"{exp}_technique_comparison.png")
         plt.savefig(out_path, dpi=150, bbox_inches="tight")
         plt.close()
-        print(f"  ✓ Figure saved → {os.path.relpath(out_path, BASE_DIR)}")
+        print(f"  Figure saved → {os.path.relpath(out_path, BASE_DIR)}")
 
 
 # SUMMARY STATS TABLE
@@ -415,8 +415,8 @@ def main():
     plot_category_breakdown(df, FIGURES)
     plot_technique_comparison(df, FIGURES)
 
-    print(f"\n✓ All figures saved to analysis/figures/")
-    print("✓ Open analysis/analysis.ipynb for interactive exploration.")
+    print(f"\n All figures saved to analysis/figures/")
+    print("Open analysis/analysis.ipynb for interactive exploration.")
 
 
 if __name__ == "__main__":

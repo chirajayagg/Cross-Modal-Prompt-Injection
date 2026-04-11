@@ -400,6 +400,6 @@ os.makedirs('analysis', exist_ok=True)
 with open(out_path, 'w') as f:
     nbf.write(nb, f)
 
-print(f'✓ Notebook created: {out_path}')
+print(f'Notebook created: {out_path}')
 print(f'  {len(cells)} cells')
 print(f'  Open with: jupyter notebook analysis/analysis.ipynb')
