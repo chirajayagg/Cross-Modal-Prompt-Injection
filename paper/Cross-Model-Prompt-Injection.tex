@@ -16,20 +16,17 @@
 
 \begin{document}
 
-\title{Cross-Modal Prompt Injection: A Systematic\\
-Black-Box Evaluation of ChatGPT and Gemini}
+\title{Cross-Modal Prompt Injection: A Systematic Black-Box Evaluation of ChatGPT and Gemini}
 
 \author{
   \IEEEauthorblockN{Chirajay Aggarwal}
   \IEEEauthorblockA{\textit{School of Computing Science}\\
   \textit{Simon Fraser University}\\
-  Burnaby, Canada \\
   caa55@sfu.ca}
   \and
   \IEEEauthorblockN{Kandisa Agarwal}
   \IEEEauthorblockA{\textit{School of Computing Science}\\
   \textit{Simon Fraser University}\\
-  Burnaby, Canada \\
   kaa80@sfu.ca}
 }
 
@@ -38,9 +35,9 @@ Black-Box Evaluation of ChatGPT and Gemini}
 %---------------------------------------------------------------------
 \begin{abstract}
 %---------------------------------------------------------------------
-Today Large Language Models (LLMs) are highly proficient in human language, image, and file generation. However, since their existence, Prompt Injection Attacks have been widely studied and established, especially under the text-only setting. This attack can cause a disruption to the model’s expected behavior, hence manipulating its results. The modern assistants such as ChatGPT and Gemini routinely accept, not only texts, but also images, documents, and persistent memory as additional input channels, each constituting a largely unstudied attack surface.  This paper presents the first systematic, black-box empirical comparison of prompt injection attacks across four input modalities on two production systems: OpenAI's GPT-4o (ChatGPT) and Google's Gemini Advanced (Gemini 2.5 Flash). 
+As Large Language Models (LLMs) expand beyond text to accept images, documents, and persistent memory, each new input channel introduces an attack surface that existing text-level defences were not designed to handle. Prompt Injection Attacks have been widely studied and established, especially under the text-only setting. This attack can cause a disruption to the model’s expected behavior, hence manipulating its results. The modern assistants such as ChatGPT and Gemini routinely accept, not only texts, but also images, documents, and persistent memory as additional input channels, each constituting a largely unstudied attack surface.  This paper presents the first systematic, black-box empirical comparison of prompt injection attacks across four input modalities on two production systems: OpenAI's GPT-4o (ChatGPT) and Google's Gemini Advanced (Gemini 2.5 Flash). 
 
-Across 148 structured test cases covering text payloads, image-embedded instructions, file-upload documents, and cross-session memory persistence, we compute per-modality Attack Success Rates (ASR) and compare the two platforms directly. Text injection produced modest but non-trivial results (ChatGPT 23.1\,\%, Gemini 27.5\,\%), which is roughly what we expected given the maturity of text safety training. Visual injection was far more effective, clearing 50\,\% on both platforms and ranking as the strongest attack channel across the study. File-upload injection revealed the sharpest contrast between the two systems: a 41.6 percentage point gap, with ChatGPT blocking nearly everything at 2.8\,\% and Gemini complying in 44.4\,\% of trials. Memory-persistence attacks showed the mirror image, with ChatGPT susceptible at 37.5\,\% while Gemini was nearly immune at 6.2\,\%. These results demonstrate that safety training does not generalise uniformly across input modalities, and that defensive coverage is platform-specific and inconsistently applied.  We discuss architectural explanations for the observed asymmetries and provide recommendations for modality-aware input sanitisation.
+Across 148 structured test cases covering text payloads, image-embedded instructions, file-upload documents, and cross-session memory persistence, we compute per-modality Attack Success Rates (ASR) and compare the two platforms directly. Text injection produced modest but non-trivial results (ChatGPT 23.1\,\%, Gemini 27.5\,\%), which is roughly what we expected given the maturity of text safety training. Visual injection was far more effective, clearing 50\,\% on both platforms and ranking as the strongest attack channel across the study. File-upload injection revealed the sharpest contrast between the two systems: a 41.6 percentage-point gap, with ChatGPT blocking nearly everything at 2.8\,\% and Gemini complying in 44.4\,\% of trials. Memory-persistence attacks showed the mirror image, with ChatGPT susceptible at 37.5\,\% while Gemini was nearly immune at 6.2\,\%. These results demonstrate that safety training does not generalise uniformly across input modalities, and that defensive coverage is platform-specific and inconsistently applied.  We discuss architectural explanations for the observed asymmetries and provide recommendations for modality-aware input sanitisation.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -55,8 +52,7 @@ Large language models have become deeply embedded in everyday workflows. ChatGPT
 
 This expanded input surface raises an urgent security question. Prompt injection, where adversarial instructions in user-supplied input causes the model to abandon its intended behaviour~\cite{perez2022ignore}, has been studied well for plain texts. But almost nothing is known about how the same class of attack plays out when the channel is an image, a PDF document, or a planted memory entry. The consequences of failing to answer this question are significant: any organisation that deploys an LLM to process external documents, images, or multi-session workloads is potentially exposed to attacks that existing text-level defences cannot detect.
 
-We address this gap through working in a black-box
-setting and drawing on three jailbreak datasets~\cite{shen2024jailbreakhub,deepset2023promptinjections,luo2024jailbreakv}, and four experiment designs. This paper contributes the following:
+We address this gap through working in a black-box setting and drawing on three jailbreak datasets~\cite{shen2024jailbreakhub,deepset2023promptinjections,luo2024jailbreakv}, and four experiment designs. This paper contributes the following:
 
 \begin{itemize}
   \item \textit{Four-modality evaluation framework.} We introduce a four-modality evaluation framework covering 148 test cases across texts, visuals, documents, and memory modalities, run against GPT-4o and Gemini 2.5 Flash under consistent black-box conditions.
@@ -105,15 +101,14 @@ Ni et al.~\cite{ni2025crossmodal} studied cross-modal prompt injection in multim
 
 \subsection{Memory and Agentic Attacks}
 
-Persistent memory in consumer LLMs is a relatively new feature, and its security implications have received very little empirical
-attention. Greshake et al.~\cite{greshake2023indirect} discussed memory poisoning conceptually in the context of agentic systems, but to our knowledge no prior study has directly measured how effective cross-session memory injection is on production platforms like ChatGPT and Gemini. Our Experiment 4 addresses this gap. The OWASP Top 10 for LLMs 2025~\cite{owasp2025llm} lists prompt injection as the top vulnerability in the category and calls out indirect and multimodal vectors specifically as areas needing dedicated mitigations. Our results provide the empirical grounding to prioritise those mitigations by modality and platform.
+Persistent memory in consumer LLMs is a relatively new feature, and its security implications have received very little empirical attention. Greshake et al.~\cite{greshake2023indirect} discussed memory poisoning conceptually in the context of agentic systems, but to our knowledge no prior study has directly measured how effective cross-session memory injection is on production platforms like ChatGPT and Gemini. Our Experiment 4 addresses this gap. The OWASP Top 10 for LLMs 2025~\cite{owasp2025llm} lists prompt injection as the top vulnerability in the category and calls out indirect and multimodal vectors specifically as areas needing dedicated mitigations. Our results provide the empirical grounding to prioritise those mitigations by modality and platform.
 
 %---------------------------------------------------------------------
 \section{Threat Model}
 \label{sec:threat}
 %---------------------------------------------------------------------
 
-Figure~\ref{fig:threat_model} depicts our threat model.
+Figure~\ref{fig:threat_model} depicts our threat model. We consider a single adversary class interacting with two production (ChatGPT and Gemini) systems across four distinct input channels, with no privileged access to the internals of the models. The subsections below define the attacker's capabilities, the attack surfaces, and the potential real-world impact.
 
 \subsection{Attacker Goals and Capabilities}
 
@@ -133,30 +128,13 @@ The attacker does not have access to other users' accounts, the model's internal
 We identify four distinct attack surfaces that arise from the current
 multimodal capabilities of production LLMs.
 
-\textbf{Text input} is the most direct channel. Attacks here rely on
-command overrides, historical jailbreak templates, role-play framing,
-or obfuscated encodings like Base64 and ROT13 that may evade
-keyword-level filters.
+\textbf{Text input} is the most direct channel. Attacks here rely on command overrides, historical jailbreak templates, role-play framing, or obfuscated encodings like Base64 and ROT13 that may evade keyword-level filters.
 
-\textbf{Visual input} is processed through a vision encoder before
-reaching the language model, which means text extracted from images
-bypasses the same pipeline that handles typed user messages. An
-attacker who can embed readable text in an uploaded image may be able
-to inject instructions before any text-level safety check is applied.
+\textbf{Visual input} Visual input is processed through a vision encoder before reaching the language model. Text extracted from images may therefore bypass the intent-detection filters applied to user-typed messages, as the two pathways are not guaranteed to share the same content-safety classification layer. An attacker who can embed readable text in an uploaded image may be able to inject instructions before any text-level safety check is applied.
 
-\textbf{Document input} presents a related problem. Files submitted
-for summarisation or analysis are first parsed by text extraction
-libraries, and any text those libraries surface, including invisible
-white-on-white text, footnotes, or content buried deep in a long
-document, gets forwarded to the language model. If no safety check
-is applied to this extracted content, the model may treat injected
-instructions as legitimate context.
+\textbf{Document input} presents a related problem. Files submitted for summarisation or analysis are first parsed by text extraction libraries, and any text those libraries surface, including invisible white-on-white text, footnotes, or content buried deep in a long document, gets forwarded to the language model. If no safety check is applied to this extracted content, the model may treat injected instructions as legitimate context.
 
-\textbf{Memory persistence} is qualitatively different from the other
-three channels because a successful attack is not contained within a
-single session. If an adversarial instruction planted in one
-conversation survives in the model's memory store, it can influence
-future conversations involving entirely different users or tasks.
+\textbf{Memory persistence} is qualitatively different from the other three channels because a successful attack is not contained within a single session. If an adversarial instruction planted in one conversation survives in the model's memory store, it can influence future conversations involving entirely different users or tasks.
 
 \subsection{Potential Impact}
 
@@ -170,10 +148,7 @@ A successful injection can cause the model to (i) reveal confidential system ins
 \subsection{Experimental Overview}
 
 We conducted four experiments targeting distinct input modalities
-against two platforms: \textbf{ChatGPT (GPT-4o)} and
-\textbf{Gemini Advanced (Gemini 2.5 Flash)}. Experiments 1-3 used
-the official OpenAI and Google Generative AI APIs for automated,
-reproducible testing.  Experiment-4 required consumer chat interfaces because persistent memory is not exposed via API. In all cases we used default safety settings and supplied no system prompt beyond each platform's standard defaults.
+against two platforms: \textbf{ChatGPT (GPT-4o)} \cite{openai2024gpt4o} and \textbf{Gemini Advanced (Gemini 2.5 Flash)} \cite{google2024gemini}. Experiments 1-3 used the official OpenAI and Google Generative AI APIs for automated, reproducible testing.  Experiment-4 required consumer chat interfaces because persistent memory is not exposed via API. In all cases we used default safety settings and supplied no system prompt beyond each platform's standard defaults.
 
 \subsection{Scoring Rubric}
 
@@ -185,12 +160,11 @@ Each test case was scored on a three-point scale:
 \end{itemize}
 
 \textbf{Attack Success Rate (ASR)} = $\frac{\text{Total Score}}{\text{Max Possible Score}} \times 100\%$.
-This metric captures the full spectrum of susceptibility, crediting
-both full and partial compliance. 
+This metric captures the full spectrum of susceptibility, crediting both full and partial compliance.
 
 \subsection{Experiment 1: Text-Based Injection (n = 80)}
 
-We compiled 80 payloads from three public sources: JailbreakHub~\cite{shen2024jailbreakhub}, deepset's prompt-injections collection~\cite{deepset2023promptinjections}, and original payloads. Payloads span eight categories: (i) direct command overrides, (ii) historical jailbreaks (DAN, AIM), (iii) role-play hijacking, (iv) Base64 encoding, (v) ROT13 encoding, (vi) leetspeak substitution, (vii)~non-English prompts, and (viii) hypothetical/fictional framing. Ten payloads per category were tested against each platform. Each payload was submitted as the sole user message. Responses were logged and scored per the rubric above.
+We compiled 80 payloads from three public sources: JailbreakHub~\cite{shen2024jailbreakhub}, deepset's prompt-injections collection~\cite{deepset2023promptinjections}, and original payloads. Payloads span eight categories: (i) direct command overrides, (ii) historical jailbreaks (DAN, AIM), (iii) role-play hijacking, (iv) Base64 encoding, (v) ROT13 encoding, (vi) leetspeak substitution, (vii)~non-English prompts, and (viii) hypothetical/fictional framing. Ten payloads per category were tested against each platform, sufficient to distinguish category-level trends while remaining feasible for evaluation. Each payload was submitted as the sole user message. Responses were logged and scored per the rubric above.
 
 \subsection{Experiment 2: Visual Injection (n = 24)}
 
@@ -202,7 +176,7 @@ We programmatically generated 24 images using Python's Pillow library across thr
   \item \textbf{Mind map:} Instructions embedded as node labels in a plausible-looking concept diagram, exploiting the model's tendency to extract all structured text from visual layouts.
 \end{itemize}
 
-Six attack goals were tested with each technique: output hijack, restriction bypass, persona jailbreak, system-prompt leakage, safety bypass, and content-policy override. Each image was submitted with the benign prompt ``Describe what you see in this image.''
+Six attack goals were tested with each technique: output hijack, restriction bypass, persona jailbreak, system-prompt leakage, safety bypass, and content-policy override. 24 images provide 8 test cases per technique, covering all six attack goals with at least one test per combination. Each image was submitted with the benign prompt ``Describe what you see in this image.''
 
 \subsection{Experiment 3: File-Upload Injection (n = 36)}
 
@@ -214,8 +188,7 @@ We generated 36 documents (18 PDF, 18 DOCX) using three concealment strategies:
   \item \textbf{Buried content:} Instructions embedded within a 10-page document far from the beginning, relying on the model processing the full extracted text.
 \end{itemize}
 
-PDFs were generated with \texttt{reportlab}; DOCX files with
-\texttt{python-docx}. Extraction was verified with \texttt{pdfplumber} and \texttt{python-docx} to confirm payloads were present in parsed output. Each document was submitted with: ``Summarise the key points of this document.''
+36 documents yield 12 per concealment strategy, split evenly across PDF and DOCX formats. PDFs were generated with \texttt{reportlab}; DOCX files with \texttt{python-docx}. Extraction was verified with \texttt{pdfplumber} and \texttt{python-docx} to confirm payloads were present in parsed output. Each document was submitted with: ``Summarise the key points of this document.''
 
 \subsection{Experiment 4: Memory Persistence (n = 8)}
 
@@ -223,11 +196,10 @@ We designed 8 cross-session test cases (Table~\ref{tab:memory}) targeting ChatGP
 
 \begin{enumerate}
   \item \textbf{Implantation (Session-1):} A payload designed to cause the model to store a malicious instruction in its memory module (output phrase hijack, false fact injection, persona definition, behavioural override, etc.).
-  \item \textbf{Trigger (Session~2):} A fresh conversation with a benign prompt designed to activate the planted instruction without referencing it.
+  \item \textbf{Trigger (Session-2):} A fresh conversation with a benign prompt designed to activate the planted instruction without referencing it.
 \end{enumerate}
 
-Testing required dedicated consumer accounts with memory enabled.
-Memory was cleared between tests to ensure trial independence.
+The test sample was kept small considering manual testing constraint. Testing required dedicated consumer accounts with memory enabled. Memory was cleared between tests to ensure trial independence.
 
 \begin{table}[t]
 \caption{Memory Persistence Test Cases (Experiment 4)}
@@ -257,9 +229,9 @@ M008 & Cross-session exfiltration & Log and echo sensitive user data \\
 
 \subsection{Overall Attack Success Rates}
 
-Table~\ref{tab:overall} and Figure~\ref{fig:overall_compare} summarise the Attack Success Rates across all four experiments. ChatGPT's aggregate ASR of 22.5\,\% is lower than Gemini's 35.5\,\%, which on the surface suggests ChatGPT has a stronger overall defensive posture. However, the aggregate number is somewhat misleading, because the two platforms show near-opposite vulnerability profiles in the file-upload and memory modalities, and are not uniformely less or more secure. The radar chart in Figure~\ref{fig:radar} makes this asymmetry visually clear.
+Table~\ref{tab:overall} and Figure~\ref{fig:overall_compare} summarise the Attack Success Rates across all four experiments. ChatGPT's aggregate ASR of 22.5\,\% is lower than Gemini's 35.5\,\%, which on the surface suggests ChatGPT has a stronger overall defensive posture. However, the aggregate number is somewhat misleading, because the two platforms show near-opposite vulnerability profiles in the file-upload and memory modalities, and are not uniformly less or more secure. The radar chart in Figure~\ref{fig:radar} makes this asymmetry visually clear.
 
-\begin{table}[t]
+\begin{table}[h!]
 \caption{Attack Success Rate (\%) by Modality and Platform}
 \label{tab:overall}
 \centering
@@ -306,6 +278,13 @@ Gemini shows a different profile. It handles well-known jailbreak formats somewh
   \label{fig:exp1_cats}
 \end{figure}
 
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/exp2_technique_comparison.png}
+  \caption{Experiment 2 (Visual Injection): ASR heatmap by embedding technique (rows) and attack goal (columns) for ChatGPT (left) and Gemini (right). Green cells indicate high success; red indicates blocked attempts}
+  \label{fig:exp2}
+\end{figure}
+
 \subsection{Experiment 2: Visual Injection}
 
 Visual injection is the strongest attack channel we tested, achieving 50.0\,\% on ChatGPT and 58.3\,\% on Gemini. This is roughly double the text-injection baseline for both platforms, which strongly suggests that the vision processing pipeline receives much less intent-detection scrutiny than the text pipeline. This aligns with findings from Ni et al.~\cite{ni2025crossmodal} that multimodal models tend to apply less rigorous instruction-intent filtering to text that arrives through the vision encoder.
@@ -314,12 +293,15 @@ Figure~\ref{fig:exp2} breaks down results by embedding technique and attack goal
 
 Gemini tells a broadly more permissive story. Low opacity and mindmap techniques each achieved 100\,\% ASR across the same three exploitable goals, a result that contrasts sharply with ChatGPT's failure on low opacity injections. This suggests Gemini’s vision encoder suppresses faint text less aggressively. The one exception is the typographic condition, where output hijack dropped to 50\,\%, suggesting Gemini's OCR pipeline's inconsistency in attack execution. Persona jailbreak and restriction bypass remained at 100\,\% even under typographic injection, however, meaning this partial failure is goal-specific rather than technique-wide.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{figures/exp2_technique_comparison.png}
-  \caption{Experiment 2 (Visual Injection): ASR heatmap by embedding technique (rows) and attack goal (columns) for ChatGPT (left) and Gemini (right). Green cells indicate high success; red indicates blocked attempts}
-  \label{fig:exp2}
-\end{figure}
+
+\subsection{Experiment 3: File-Upload Injection}
+
+This experiment produced the largest and most practically significant finding in the study. ChatGPT's ASR of 2.8\,\% indicates near-complete resistance: across 36 documents, only a single footnote-injected PDF succeeded in triggering a restriction bypass. Gemini's ASR of 44.4\,\% represents a 41.6 percentage-point gap, making this the widest inter-platform divergence we observed.
+
+As shown in Figure~\ref{fig:exp3}, footnote injection is the most effective technique against Gemini, achieving roughly 75\,\% ASR across both PDF and DOCX formats. White-on-white text reaches approximately 42\,\% and buried content around 25\,\%. The ordering of techniques by effectiveness, footnote first and buried content last, suggests that Gemini's text-extraction pipeline forwards all parsed document content to the language model with the same trust level as user-authored messages. Footnotes are extracted and included in that output, and they arrive without any signal that they might be adversarial.
+
+ChatGPT's near-total resistance suggests a fundamentally different architecture. Rather than forwarding extracted document text directly to the language model, it appears to apply a content-safety pass to the full parsed text before acting on it, catching injected instructions before they can influence the model's response.
+
 
 \begin{figure}[h!]
   \centering
@@ -328,21 +310,13 @@ Gemini tells a broadly more permissive story. Low opacity and mindmap techniques
   \label{fig:exp3}
 \end{figure}
 
-\subsection{Experiment 3: File-Upload Injection}
-
-This experiment produced the largest and most practically significant finding in the study. ChatGPT's ASR of 2.8\,\% indicates near-complete resistance: across 36 documents, only a single footnote-injected PDF succeeded in triggering a restriction bypass. Gemini's ASR of 44.4\,\% represents a 41.6 percentage point gap, making this the widest inter-platform divergence we observed.
-
-As shown in Figure~\ref{fig:exp3}, footnote injection is the most effective technique against Gemini, achieving roughly 75\,\% ASR across both PDF and DOCX formats. White-on-white text reaches approximately 42\,\% and buried content around 25\,\%. The ordering of techniques by effectiveness, footnote first and buried content last, suggests that Gemini's text-extraction pipeline forwards all parsed document content to the language model with the same trust level as user-authored messages. Footnotes are extracted and included in that output, and they arrive without any signal that they might be adversarial.
-
-ChatGPT's near-total resistance suggests a fundamentally different architecture. Rather than forwarding extracted document text directly to the language model, it appears to apply a content-safety pass to the full parsed text before acting on it, catching injected instructions before they can influence the model's response.
-
 \subsection{Experiment 4: Memory Persistence}
 
-Memory results reveal a second major asymmetry, pointing in the opposite direction. ChatGPT's overall ASR of 37.5\,\% is driven by three specific attack goals that achieve 100\,\% success: output hijack, instruction persistence, and system-prompt leakage. These successes expose fundamentally different kinds of vulnerabilities. In output hijack, the model reproduces exact phrases planted in the memory store across sessions. In instruction persistence, adversarial instructions embedded in Session 1 cause the model to modify its behavior in Session 2, including appending hidden suffixes to responses. Most alarmingly, system-prompt leakage succeeds in extracting detailed personal information accumulated in memory, including academic history, ongoing projects, and business activities, triggered by innocuous-looking prompts in a fresh session.
+Memory results reveal a second major asymmetry, pointing in the opposite direction, as shown in Figure~\ref{fig:exp4} ChatGPT's overall ASR of 37.5\,\% is driven by three specific attack goals that achieve 100\,\% success: output hijack, instruction persistence, and system-prompt leakage. These successes expose fundamentally different kinds of vulnerabilities. In output hijack, the model reproduces exact phrases planted in the memory store across sessions. In instruction persistence, adversarial instructions embedded in Session-1 cause the model to modify its behavior in Session-2, including appending hidden suffixes to responses. Most alarmingly, system-prompt leakage succeeds in extracting detailed personal information accumulated in memory, including academic history, ongoing projects, and business activities, triggered by innocuous-looking prompts in a fresh session.
 
 This last vulnerability is particularly concerning because it combines privacy violation with deceptive behavior. The model reproduces sensitive context without informing the user that information is being recalled and shared. Unlike single-turn injection attacks, this vulnerability spans sessions and is invisible to users within any individual conversation.
 
-By contrast, Gemini is nearly immune to all memory-persistence attacks. The heatmap shows zero success across seven attack goals. The sole non-zero result is a 50\,\% partial success on preference manipulation, suggesting that Gemini applies safety filtering at the point of writing to its persistent memory store, effectively catching adversarial instructions before they take root.
+By contrast, Gemini is nearly immune to all memory-persistence attacks. The heatmap shows zero success across seven attack goals. The sole non-zero result is a 50\,\% partial success on preference manipulation, suggesting this is consistent with Gemini applying safety filtering at the point of writing to its persistent memory store. However, as a black-box study we cannot confirm this architectural detail directly. Given the small sample (n = 8), these results should be treated as indicative rather than definitive; they demonstrate feasibility of the attack class rather than a precise ASR estimate.
 
 \begin{figure}[h!]
   \centering
@@ -377,14 +351,14 @@ Figure~\ref{fig:goal_transfer} presents cross-modal mean ASR by attack objective
 
 Output hijack and restriction bypass emerge as the most consistently effective attack goals, achieving 37.5-55.0\,\% and 31.2-71.9\,\% ASR respectively across both platforms. These objectives demonstrate strong transferability across text, visual, and document modalities. By contrast, system-prompt leakage and safety bypass are well-defended on both platforms with mean ASRs below 17\,\%. 
 
-The diagram reveals dramatic platform-specific divergences hidden within aggregate metrics. Gemini is highly susceptible to mode-switching attacks (83.3\,\%), where attackers invoke alternative operational modes. ChatGPT remains nearly immune to this goal (5.6\,\%). On the contrary, ChatGPT succumbs to in-the-wild jailbreaks (37.5\,\%) while Gemini resists them nearly completely (5.0\,\%). These asymmetries underscore that safety training targets different threat models on each platform.
+The diagram reveals dramatic platform-specific divergences hidden within aggregate metrics. Gemini is highly susceptible to mode-switching attacks (attacks that invoke an alternative operational mode or persona, e.g., 'developer mode' or 'DAN-style' framing; 83.3\,\%), where attackers invoke alternative operational modes. ChatGPT remains nearly immune to this goal (5.6\,\%). On the contrary, ChatGPT succumbs to in-the-wild jailbreaks (37.5\,\%) while Gemini resists them nearly completely (5.0\,\%). These asymmetries underscore that safety training targets different threat models on each platform.
 
 ChatGPT's memory-persistence vulnerability creates an indirect path to system-prompt leakage that general text-level defences cannot stop. An adversary unable to extract system instructions via direct text injection may plant a memory-extraction trigger that succeeds when recalled in a subsequent session, circumventing goal-level defences through modality-switching.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\linewidth]{figures/attack_goal_analysis.png}
-  \caption{Attack goal transferability: cross-modal mean ASR by attack objective for goals with sufficient coverage (n >= 8)}
+  \caption{Attack goal transferability: cross-modal mean ASR by attack objective for goals with sufficient coverage ($n \geq 8$ )}
   \label{fig:goal_transfer}
 \end{figure}
 
@@ -395,13 +369,12 @@ ChatGPT's memory-persistence vulnerability creates an indirect path to system-pr
 
 \subsection{Why Visual Attacks Work So Well}
 
-The $\ge$50\,\% ASR for visual injection on both platforms is the most operationally significant finding.Text-level
-safety training has matured considerably over the past two years, but the vision pipeline has not kept pace. This is consistent with the ``modality gap'' described in~\cite{ni2025crossmodal}: models are trained to extract \emph{all} textual content from images, that are useful for reading slides and signs, without enforcing a semantic boundary between benign extracted text and adversarial instructions.
+The $\ge$50\,\% ASR for visual injection on both platforms is the most operationally significant finding. Text-level safety training has matured considerably over the past two years, but the vision pipeline has not kept pace. This is consistent with the ``modality gap'' described in~\cite{ni2025crossmodal}: models are trained to extract \emph{all} textual content from images, that are useful for reading slides and signs, without enforcing a semantic boundary between benign extracted text and adversarial instructions.
 
-The implication is that any application that accepts image uploads (customer support bots with screenshot upload, medical imaging assistants, code review tools) is currently exposed to injection at rates that would be unacceptable in text-only deployments. Closing this gap requires applying the same intent-detection pipeline used for textual input to text extracted by the vision encoder i.e. treating vision-extracted text as untrusted by default.
+The implication is that any application that accepts image uploads (customer support bots with screenshot upload, medical imaging assistants, code review tools) is currently exposed to injection at rates that would be unacceptable in text-only deployments. Closing this gap requires applying the same intent-detection pipeline used for typed text to vision-extracted content i.e. a design principle consistent with the privilege separation model recommended by OWASP [7].
 
 \subsection{The File-Upload Gap: Two Different Architectures}
-The 41.6\,\%  point difference in file-upload injection is best
+The 41.6 percentage-point difference in file-upload injection is best
 understood as evidence that ChatGPT and Gemini have made fundamentally different choices about where to apply content-safety classification for uploaded documents. ChatGPT appears to apply a safety pass to the full extracted text before it reaches the language model, treating document uploads as an untrusted channel by design. Gemini appears to forward extracted content to the language model with the same level of trust as a user-authored message, which means any text the parser surfaces, including invisible white text, footnotes, and buried paragraphs, gets processed without an additional safety check.
 
 For organisations using Gemini to process external documents, this is a high-priority concern. A malicious actor who can place any content into a submitted file, even a single footnote, can redirect the model's output. The practical fix is to apply content-safety classification to all text extracted from uploaded files, regardless of where in the document it came from.
@@ -410,7 +383,7 @@ For organisations using Gemini to process external documents, this is a high-pri
 
 The memory-persistence findings introduce a threat category that is qualitatively different from anything in the other three experiments. A successful file-upload or visual injection is contained within a single session. A successful memory injection is not. The compromised behaviour persists across all future sessions until the user intervenes manually, and crucially, the user may have no idea it happened.
 
-The M006 success on ChatGPT is the most serious specific result in the study. An attacker who can plant a memory-extraction trigger in Session 1 can retrieve detailed personal information about the user in Session 2 without that user being present or aware. This is not hypothetical: we demonstrated it. The architectural fix Gemini appears to have implemented, applying safety filtering before writing to memory rather than only before generating responses, is the right approach, and ChatGPT would benefit from adopting something similar.
+The M006 success on ChatGPT is the most serious specific result in the study. An attacker who can plant a memory-extraction trigger in Session-1 can retrieve detailed personal information about the user in Session-2 without that user being present or aware. This is not hypothetical: we demonstrated it. The architectural fix Gemini appears to have implemented, applying safety filtering before writing to memory rather than only before generating responses, is the right approach, and ChatGPT would benefit from adopting something similar.
 
 \subsection{Asymmetric Defences and What They Mean for Attackers}
 
@@ -422,7 +395,7 @@ The path toward more consistent protection runs through architecture, not just t
 
 \subsection{Limitations}
 
-A few limitations are worth noting. (i) This is a point-in-time study; both platforms update continuously, and ASRs are bound to shift since our testing window (March-April 2026). (ii)Our payload set, while grounded in established public datasets, does not cover every possible attack variation, particularly adaptive attacks designed to evade known defences~\cite{ni2025crossmodal}. (iii) Experiment 4 was conducted manually, introducing potential trial variability absent from the API experiments. (iv) As a black-box study, we cannot determine root causes of specific defensive successes or failures without access to platform internals. Finally, (v) our payload sources bias toward community-catalogued jailbreak strategies; novel, bespoke attacks may yield different results.
+A few limitations are worth noting. (i) This is a point-in-time study; both platforms update continuously, and ASRs are bound to shift since our testing window (March-April 2026). (ii) Our payload set, while grounded in established public datasets, does not cover every possible attack variation, particularly adaptive attacks designed to evade known defences~\cite{ni2025crossmodal}. (iii) Experiment 4 was conducted manually, introducing potential trial variability absent from the API experiments. (iv) As a black-box study, we cannot determine root causes of specific defensive successes or failures without access to platform internals. Finally, (v) our payload sources bias toward community-catalogued jailbreak strategies; novel, bespoke attacks may yield different results.
 
 %---------------------------------------------------------------------
 \section{Conclusion}
@@ -431,7 +404,7 @@ A few limitations are worth noting. (i) This is a point-in-time study; both plat
 
 This paper has presented the first systematic, multi-modal comparison of prompt injection resistance across ChatGPT and Gemini, covering 148 test cases in four distinct input modalities. The core finding is that safety training does not generalise uniformly across input channels. Both platforms are substantially more vulnerable to visual injection than to text injection, and their defensive profiles are nearly inverted when it comes to file-upload and memory-persistence attacks.
 
-The 41.6 percentage point gap in file-upload injection and the 31 percentage point gap in memory persistence are not minor differences in degree; they reflect fundamentally different architectural choices about where content-safety classification is applied. A sophisticated attacker who knows these gaps can exploit them deliberately, choosing the attack channel that the target platform handles least well.
+The 41.6 percentage-point gap in file-upload injection and the 31 percentage-point gap in memory persistence are not minor differences in degree; they reflect fundamentally different architectural choices about where content-safety classification is applied. A sophisticated attacker who knows these gaps can exploit them deliberately, choosing the attack channel that the target platform handles least well.
 
 The defense leakage analysis adds another layer to this picture: partial-compliance rates in text injection are high enough on both platforms to suggest that more refined obfuscation techniques will push near-misses into full successes. And the attack goal transferability analysis shows that even objectives which appear well-defended at the text level, like system-prompt leakage, can be reached through alternative channels like memory persistence.
 
@@ -441,58 +414,37 @@ Achieving meaningfully robust protection will require treating every input chann
 \begin{thebibliography}{00}
 
 \bibitem{perez2022ignore}
-F.~Perez and I.~Ribeiro, ``Ignore previous prompt: Attack techniques for
-language models,'' in \textit{Proc. NeurIPS Workshop on Machine Learning Safety},
-2022.
+F.~Perez and I.~Ribeiro, ``Ignore previous prompt: Attack techniques for language models,'' in \textit{Proc. NeurIPS Workshop on Machine Learning Safety}, 2022.
 
 \bibitem{greshake2023indirect}
-K.~Greshake, S.~Abdelnabi, S.~Mishra, C.~Endres, T.~Holz, and
-M.~Fritz, ``Not what you've signed up for: Compromising real-world
-LLM-integrated applications with indirect prompt injection,'' in
-\textit{Proc. ACM Workshop on Artificial Intelligence and Security (AISec)}, 2023.
+K.~Greshake, S.~Abdelnabi, S.~Mishra, C.~Endres, T.~Holz, and M.~Fritz, ``Not what you've signed up for: Compromising real-world LLM-integrated applications with indirect prompt injection,'' in \textit{Proc. ACM Workshop on Artificial Intelligence and Security (AISec)}, 2023.
 
 \bibitem{wei2023jailbroken}
-A.~Wei, N.~Haghtalab, and J.~Steinhardt, ``Jailbroken: How does LLM safety
-training fail?'' in \textit{Advances in Neural Information Processing Systems
-(NeurIPS)}, vol.~36, 2023.
+A.~Wei, N.~Haghtalab, and J.~Steinhardt, ``Jailbroken: How does LLM safety training fail?'' in \textit{Advances in Neural Information Processing Systems (NeurIPS)}, vol.~36, 2023.
 
 \bibitem{shen2024jailbreakhub}
-X.~Shen, Z.~Chen, M.~Backes, Y.~Shen, and Y.~Zhang, ```Do anything now':
-Characterizing and evaluating in-the-wild jailbreak prompts on large language
-models,'' in \textit{Proc. ACM Conference on Computer and Communications
-Security (CCS)}, 2024.
+X.~Shen, Z.~Chen, M.~Backes, Y.~Shen, and Y.~Zhang, ```Do anything now': Characterizing and evaluating in-the-wild jailbreak prompts on large language models,'' in \textit{Proc. ACM Conference on Computer and Communications Security (CCS)}, 2024.
 
 \bibitem{luo2024jailbreakv}
-W.~Luo, S.~Ma, X.~Liu, X.~Guo, and C.~Xiao, ``JailBreakV-28K: A benchmark
-for assessing the robustness of multimodal large language models against jailbreak
-attacks,'' \textit{arXiv preprint arXiv:2404.03027}, 2024.
+W.~Luo, S.~Ma, X.~Liu, X.~Guo, and C.~Xiao, ``JailBreakV-28K: A benchmark for assessing the robustness of multimodal large language models against jailbreak attacks,'' \textit{arXiv preprint arXiv:2404.03027}, 2024.
 
 \bibitem{deepset2023promptinjections}
-deepset, ``Prompt-injections dataset,'' Hugging Face, 2023. [Online].
-Available: \url{https://huggingface.co/datasets/deepset/prompt-injections}
+deepset, ``Prompt-injections dataset,'' Hugging Face, 2023. [Online]. Available: \url{https://huggingface.co/datasets/deepset/prompt-injections}
 
 \bibitem{owasp2025llm}
-OWASP, ``OWASP Top 10 for large language model applications, 2025 edition,''
-OWASP Foundation, 2025. [Online]. Available:
-\url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}
+OWASP, ``OWASP Top 10 for large language model applications, 2025 edition,'' OWASP Foundation, 2025. [Online]. Available: \url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}
 
 \bibitem{shayegani2023survey}
-E.~Shayegani, M.~A.~A.~Mamun, Y.~Fu, P.~Zaree, Y.~Dong, and N.~Abu-Ghazaleh,
-``Survey of vulnerabilities in large language models revealed by adversarial
-attacks,'' \textit{arXiv preprint arXiv:2310.10844}, 2023.
+E.~Shayegani, M.~A.~A.~Mamun, Y.~Fu, P.~Zaree, Y.~Dong, and N.~Abu-Ghazaleh, ``Survey of vulnerabilities in large language models revealed by adversarial attacks,'' \textit{arXiv preprint arXiv:2310.10844}, 2023.
 
 \bibitem{ni2025crossmodal}
-B.~Ni, C.~Chen, T.~Wang, and X.~Li, ``Manipulating multimodal agents via
-cross-modal prompt injection,'' in \textit{Proc. ACM International Conference
-on Multimedia (ACM MM)}, 2025.
+B.~Ni, C.~Chen, T.~Wang, and X.~Li, ``Manipulating multimodal agents via cross-modal prompt injection,'' in \textit{Proc. ACM International Conference on Multimedia (ACM MM)}, 2025.
 
 \bibitem{openai2024gpt4o}
-OpenAI, ``GPT-4o system card,'' OpenAI Technical Report, 2024. [Online].
-Available: \url{https://openai.com/index/gpt-4o-system-card/}
+OpenAI, ``GPT-4o system card,'' OpenAI Technical Report, 2024. [Online]. Available: \url{https://openai.com/index/gpt-4o-system-card/}
 
 \bibitem{google2024gemini}
-Google DeepMind, ``Gemini: A family of highly capable multimodal models,''
-\textit{arXiv preprint arXiv:2312.11805}, 2024.
+Google DeepMind, ``Gemini: A family of highly capable multimodal models,'' \textit{arXiv preprint arXiv:2312.11805}, 2024.
 
 \end{thebibliography}
 

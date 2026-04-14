@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1776146689 "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" "Cross-Model-Prompt-Injection.pdf" "Cross-Model-Prompt-Injection" 1776146693
+["pdflatex"] 1776155129 "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" "Cross-Model-Prompt-Injection.pdf" "Cross-Model-Prompt-Injection" 1776155133
   "/etc/texmf/web2c/texmf.cnf" 1771724814 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/kandi/.texlive2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1771893384 1405758 e7ec404be88b695170db178028be8735 ""
-  "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" 1776146680 43124 37c2942c3969f33fce83b309f6fabb09 ""
+  "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" 1776155128 44402 13832d104211b3dc1b55ff7654512d67 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -34,6 +34,7 @@
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy6.tfm" 1136768653 1116 933a60c408fc0a863a92debe84b2d294 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy8.tfm" 1136768653 1120 8b7d695260f3cff42e636090a8002094 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmsy9.tfm" 1136768653 1116 25a7bf822c58caf309a702ef79f4afbb ""
+  "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb" 1248133631 36299 5f9df58c2139e7edcf37c8fca4bd384d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb" 1248133631 35752 024fb6c41858982481f6968b5fc26508 ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb" 1248133631 32716 08e384dc442464e7285e891af9f45947 ""
@@ -114,9 +115,9 @@
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1771893541 4379155 98693266ff65f58d9f98aff394de12d2 ""
-  "Cross-Model-Prompt-Injection.aux" 1776146692 11069 0dc2d89b79188021a4abe02fd9db858d "pdflatex"
-  "Cross-Model-Prompt-Injection.out" 1776146692 6407 fa9e5b77c887d4e3d9fb3b52fd21d051 "pdflatex"
-  "Cross-Model-Prompt-Injection.tex" 1776146680 43124 37c2942c3969f33fce83b309f6fabb09 ""
+  "Cross-Model-Prompt-Injection.aux" 1776155132 11134 1f9480c46a8b5e33973fff9965c06869 "pdflatex"
+  "Cross-Model-Prompt-Injection.out" 1776155132 6407 fa9e5b77c887d4e3d9fb3b52fd21d051 "pdflatex"
+  "Cross-Model-Prompt-Injection.tex" 1776155128 44402 13832d104211b3dc1b55ff7654512d67 ""
   "figures/attack_goal_analysis.png" 1776141478 217730 24880af6e3e1fd21a5b237c660f8b9a0 ""
   "figures/defense_leakage.png" 1776140718 116448 056f3cc9da94a7226bc3026f9ecc172d ""
   "figures/exp1_category_breakdown.png" 1776137022 124695 903fd9d71e8432d5a379d4a458c9ca74 ""
