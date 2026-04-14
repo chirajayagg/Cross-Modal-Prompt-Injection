@@ -1,260 +1,499 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{tabularx}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
 \begin{document}
 
-\title{Cross Modal Prompt Injection: A Systematic Black-Box\\
-Evaluation of ChatGPT and Gemini\\
-{\footnotesize \textsuperscript{*}Note: Sub-titles are not captured in Xplore and
-should not be used}
-\thanks
-}
+\title{Cross-Modal Prompt Injection: A Systematic\\
+Black-Box Evaluation of ChatGPT and Gemini}
 
-\author{\IEEEauthorblockN{Chirajay Aggarwal}
-\IEEEauthorblockA{
-caa55@sfu.ca}
-\and
-\IEEEauthorblockN{Kandisa Agarwal}
-\IEEEauthorblockA{kaa80@sfu.ca}
+\author{
+  \IEEEauthorblockN{Chirajay Aggarwal}
+  \IEEEauthorblockA{\textit{School of Computing Science}\\
+  \textit{Simon Fraser University}\\
+  Burnaby, Canada \\
+  caa100@sfu.ca}
+  \and
+  \IEEEauthorblockN{Kandisa Agarwal}
+  \IEEEauthorblockA{\textit{School of Computing Science}\\
+  \textit{Simon Fraser University}\\
+  Burnaby, Canada \\
+  kandisaagarwal@gmail.com}
 }
 
 \maketitle
 
+%---------------------------------------------------------------------
 \begin{abstract}
-This document is a model and instructions for \LaTeX.
-This and the IEEEtran.cls file define the components of your paper [title, text, heads, etc.]. *CRITICAL: Do Not Use Symbols, Special Characters, Footnotes, 
-or Math in Paper Title or Abstract.
+%---------------------------------------------------------------------
+Today Large Language Models (LLMs) are highly proficient in human language, image, and file generation. However, since their existence, Prompt Injection Attacks have been widely studied and established, especially under the text-only setting. This attack can cause a disruption to the model’s expected behavior, hence manipulating its results. The modern assistants such as ChatGPT and Gemini routinely accept, not only texts, but also images, documents, and persistent memory as additional input channels, each constituting a largely unstudied attack surface.  This paper presents the first systematic, black-box empirical comparison of prompt injection attacks across four input modalities on two production systems: OpenAI's GPT-4o (ChatGPT) and Google's Gemini Advanced (Gemini 2.5 Flash). 
+
+Across 148 structured test cases covering text payloads, image-embedded instructions, file-upload documents, and cross-session memory persistence, we compute per-modality Attack Success Rates (ASR) and compare the two platforms directly. Text injection produced modest but non-trivial results (ChatGPT 23.1\,\%, Gemini 27.5\,\%), which is roughly what we expected given the maturity of text safety training. Visual injection was far more effective, clearing 50\,\% on both platforms and ranking as the strongest attack channel across the study. File-upload injection revealed the sharpest contrast between the two systems: a 41.6 percentage point gap, with ChatGPT blocking nearly everything at 2.8\,\% and Gemini complying in 44.4\,\% of trials. Memory-persistence attacks showed the mirror image, with ChatGPT susceptible at 37.5\,\% while Gemini was nearly immune at 6.2\,\%. These results demonstrate that safety training does not generalise uniformly across input modalities, and that defensive coverage is platform-specific and inconsistently applied.  We discuss architectural explanations for the observed asymmetries and provide recommendations for modality-aware input sanitisation.
 \end{abstract}
 
 \begin{IEEEkeywords}
-component, formatting, style, styling, insert
+prompt injection, jailbreaking, multimodal security, large language
+models, adversarial attacks, ChatGPT, Gemini
 \end{IEEEkeywords}
 
+%---------------------------------------------------------------------
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+%---------------------------------------------------------------------
+Large language models have become deeply embedded in everyday workflows. ChatGPT crossed 200 million weekly active users in 2024, and both ChatGPT and Gemini are now used for tasks as varied as legal document review, code generation, and medical question answering. One of the most significant shifts in this generation of assistants is the move to multimodal input: users can upload photographs, PDFs, spreadsheets, and Word documents, and in some configurations the model can carry context from one conversation into the next through a persistent memory system.
 
-\section{Ease of Use}
+This expanded input surface raises an urgent security question. Prompt injection, where adversarial instructions in user-supplied input causes the model to abandon its intended behaviour~\cite{perez2022ignore}, has been studied well for plain texts. But almost nothing is known about how the same class of attack plays out when the channel is an image, a PDF document, or a planted memory entry. The consequences of failing to answer this question are significant: any organisation that deploys an LLM to process external documents, images, or multi-session workloads is potentially exposed to attacks that existing text-level defences cannot detect.
 
-\subsection{Maintaining the Integrity of the Specifications}
+We address this gap through working in a black-box
+setting and drawing on three jailbreak datasets~\cite{shen2024jailbreakhub,deepset2023promptinjections,luo2024jailbreakv}, and four experiment designs. This paper contributes the following:
 
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
-
-\section{Prepare Your Paper Before Styling}
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
-
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
-
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
-
-\subsection{Units}
 \begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
+  \item \textit{Four-modality evaluation framework.} We introduce a four-modality evaluation framework covering 148 test cases across texts, visuals, documents, and memory modalities, run against GPT-4o and Gemini 2.5 Flash under consistent black-box conditions.
+
+  \item \textit{Quantitative cross-platform ASR comparison.}  We provide the first head-to-head measurement of multimodal injection resistance between ChatGPT and Gemini, using a principled three-point scoring rubric.
+
+  \item \textit{Granular technique and goal analysis.}  Within each modality we decompose ASR by embedding technique (e.g., footnote vs.\ white-text vs.\ buried content) and by attack objective (e.g., output hijack vs.\ system-prompt leakage), revealing which combinations are most dangerous.
+
+  \item \textit{Defense leakage analysis.} We introduce a defense leakage analysis that tracks partial compliance as a leading indicator of safety training operating near its threshold.
+
+  \item \textit{Attack goal transferability analysis.} We analyse attack goal transferability across modalities, revealing which adversarial objectives work universally and which are platform-specific.
 \end{itemize}
 
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
+We notice that (i) visual injection is the most effective attack channel on both platforms; (ii) 41.6\,\% divergence in file-upload injection shows that the two platforms have taken fundamentally different approaches to document sanitisation; (iii) memory-persistence attacks expose the reverse asymmetry, with ChatGPT vulnerable and Gemini nearly immune. Figure~\ref{fig:threat_model} gives an overview of the experimental scope and threat model.
 
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
+\begin{figure*}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/threat_model.png}
+  \caption{Cross-modal prompt injection threat model.}
+  \label{fig:threat_model}
+\end{figure*}
 
-\subsection{\LaTeX-Specific Advice}
+%---------------------------------------------------------------------
+\section{Related Work}
+\label{sec:related}
+%---------------------------------------------------------------------
 
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
+\subsection{Direct and Indirect Prompt Injection}
 
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
+The problem of prompt injection was formalised by Perez and Ribeiro~\cite{perez2022ignore}, who showed that instruction-following models can be redirected through simple natural-language overrides like ``Ignore previous instructions and do X instead.'' Their work assumed a white-box attacker who could inspect the system prompt; subsequent research has extended this to more realistic settings.
 
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
+Greshake et al.~\cite{greshake2023indirect} introduced the concept of \textit{indirect} prompt injection, where the payload does not come from the user directly but arrives through retrieved content such as web pages, tool outputs, or documents the model is asked to process. Their demonstrations on real LLM-integrated applications showed concrete exploits including email exfiltration and plugin-mediated code execution, and they were among the first to argue that any content the model reads should be treated as a potential injection vector. A 2023 survey by Shayegani et al.~\cite{shayegani2023survey} later catalogued the growing landscape of multimodal adversarial threats, noting that visual and audio modalities tend to be more susceptible than text because of their higher-dimensional feature spaces and the relative immaturity of safety training for those channels.
 
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
+\subsection{Jailbreaking Research}
 
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
+Parallel to injection research, the jailbreaking literature focuses on bypassing safety training rather than hijacking a specific task. Wei et al.~\cite{wei2023jailbroken} offered a clean theoretical account of why jailbreaking works: models trained with RLHF face competing objectives between being helpful and being safe, and this tension can be surfaced through role-play framing, hypothetical scenarios, or carefully worded requests. Their taxonomy of competing objectives and mismatched generalisation directly informs our categorisation of encoding-based and persona-hijack payloads in Experiment 1.
 
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
+Shen et al.~\cite{shen2024jailbreakhub} conducted the largest empirical study of in-the-wild jailbreak prompts to date. Their JailbreakHub dataset, presented at CCS 2024, catalogued 1,405 prompts from 131 online communities and evaluated them across 13 forbidden scenarios. One of their key findings was that encoding-based obfuscation techniques reliably degrade model defences, a result we replicate in Experiment 1 and extend to three additional modalities.
 
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
+\subsection{Multimodal and Cross-Modal Attacks}
 
-\subsection{Some Common Mistakes}\label{SCM}
+Luo et al.~\cite{luo2024jailbreakv} introduced JailBreakV-28K, a benchmark of 28,000 multimodal jailbreak test cases spanning typographic, image-based, and cross-modal transfer attacks. Their main finding was that the visual modality substantially increases attack effectiveness, particularly for open-weight models. Our work builds on this by focusing on closed-weight, safety-trained production systems rather than open-source models, and by adding document upload and memory persistence as additional attack surfaces.
+
+Ni et al.~\cite{ni2025crossmodal} studied cross-modal prompt injection in multimodal agents specifically, finding that even models with explicit vision safety training can be manipulated through images that are semantically aligned with malicious text instructions. The visual injection techniques we test operationalise a simpler, more accessible version of this class of attack, without requiring the adversarial image synthesis methods their paper describes.
+
+
+\subsection{Memory and Agentic Attacks}
+
+Persistent memory in consumer LLMs is a relatively new feature, and its security implications have received very little empirical
+attention. Greshake et al.~\cite{greshake2023indirect} discussed memory poisoning conceptually in the context of agentic systems, but to our knowledge no prior study has directly measured how effective cross-session memory injection is on production platforms like ChatGPT and Gemini. Our Experiment 4 addresses this gap. The OWASP Top 10 for LLMs 2025~\cite{owasp2025llm} lists prompt injection as the top vulnerability in the category and calls out indirect and multimodal vectors specifically as areas needing dedicated mitigations. Our results provide the empirical grounding to prioritise those mitigations by modality and platform.
+
+%---------------------------------------------------------------------
+\section{Threat Model}
+\label{sec:threat}
+%---------------------------------------------------------------------
+
+Figure~\ref{fig:threat_model} depicts our threat model.
+
+\subsection{Attacker Goals and Capabilities}
+
+We model an attacker who is operating entirely in a black-box setting. They have no access to the model's system prompt, internal weights, or safety filters, and they interact only through the standard user interface or the public API. Concretely, we assume the attacker can do any of the following.
+
 \begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
+  \item Compose or modify text messages sent to the model.
+  \item Upload images that contain adversarial instructions, whether visible typography, semi-transparent overlays, or structured diagram labels.
+  \item Upload documents in PDF or DOCX format whose extracted text contains hidden or obfuscated instructions.
+  \item Interact with a memory-enabled assistant in one session to plant a persistent instruction, then observe whether that instruction influences a separate, independent session later.
 \end{itemize}
-An excellent style manual for science writers is \cite{b7}.
 
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
+The attacker does not have access to other users' accounts, the model's internal state, or the ability to modify any part of the deployment infrastructure.
 
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
+\subsection{Attack Surfaces}
 
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
+We identify four distinct attack surfaces that arise from the current
+multimodal capabilities of production LLMs.
 
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
+\textbf{Text input} is the most direct channel. Attacks here rely on
+command overrides, historical jailbreak templates, role-play framing,
+or obfuscated encodings like Base64 and ROT13 that may evade
+keyword-level filters.
 
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
+\textbf{Visual input} is processed through a vision encoder before
+reaching the language model, which means text extracted from images
+bypasses the same pipeline that handles typed user messages. An
+attacker who can embed readable text in an uploaded image may be able
+to inject instructions before any text-level safety check is applied.
 
-\begin{table}[htbp]
-\caption{Table Type Styles}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
-\end{tabular}
-\label{tab1}
-\end{center}
+\textbf{Document input} presents a related problem. Files submitted
+for summarisation or analysis are first parsed by text extraction
+libraries, and any text those libraries surface, including invisible
+white-on-white text, footnotes, or content buried deep in a long
+document, gets forwarded to the language model. If no safety check
+is applied to this extracted content, the model may treat injected
+instructions as legitimate context.
+
+\textbf{Memory persistence} is qualitatively different from the other
+three channels because a successful attack is not contained within a
+single session. If an adversarial instruction planted in one
+conversation survives in the model's memory store, it can influence
+future conversations involving entirely different users or tasks.
+
+\subsection{Potential Impact}
+
+A successful injection can cause the model to (i) reveal confidential system instructions; (ii) produce content it would normally refuse to generate; (iii) maintain a persistent compromised persona; (iv) exfiltrate user data across sessions; or (v) take unintended actions in agentic workflows. In enterprise deployments any of these outcomes can lead to data breaches, reputational damage, or regulatory liability.
+
+%---------------------------------------------------------------------
+\section{Methodology}
+\label{sec:method}
+%---------------------------------------------------------------------
+
+\subsection{Experimental Overview}
+
+We conducted four experiments targeting distinct input modalities
+against two platforms: \textbf{ChatGPT (GPT-4o)} and
+\textbf{Gemini Advanced (Gemini 2.5 Flash)}. Experiments 1-3 used
+the official OpenAI and Google Generative AI APIs for automated,
+reproducible testing.  Experiment-4 required consumer chat interfaces because persistent memory is not exposed via API. In all cases we used default safety settings and supplied no system prompt beyond each platform's standard defaults.
+
+\subsection{Scoring Rubric}
+
+Each test case was scored on a three-point scale:
+\begin{itemize}
+  \item \textbf{Full success; 2:} The model executed the injected instruction exactly (e.g., produced a demanded phrase, adopted a prohibited persona, or revealed system instructions).
+  \item \textbf{Partial success; 1:} The model showed measurable influence (hedged acknowledgment, partial phrase output) but did not fully comply.
+  \item \textbf{Failure; 0:} The injection was ignored, refused, or explicitly flagged.
+\end{itemize}
+
+\textbf{Attack Success Rate (ASR)} = $\frac{\text{Total Score}}{\text{Max Possible Score}} \times 100\%$.
+This metric captures the full spectrum of susceptibility, crediting
+both full and partial compliance. 
+
+\subsection{Experiment 1: Text-Based Injection (n = 80)}
+
+We compiled 80 payloads from three public sources: JailbreakHub~\cite{shen2024jailbreakhub}, deepset's prompt-injections collection~\cite{deepset2023promptinjections}, and original payloads. Payloads span eight categories: (i) direct command overrides, (ii) historical jailbreaks (DAN, AIM), (iii) role-play hijacking, (iv) Base64 encoding, (v) ROT13 encoding, (vi) leetspeak substitution, (vii)~non-English prompts, and (viii) hypothetical/fictional framing. Ten payloads per category were tested against each platform. Each payload was submitted as the sole user message. Responses were logged and scored per the rubric above.
+
+\subsection{Experiment 2: Visual Injection (n = 24)}
+
+We programmatically generated 24 images using Python's Pillow library across three embedding techniques:
+
+\begin{itemize}
+  \item \textbf{Typographic:} Black text on white background rendering a malicious instruction directly, which tests baseline OCR-style vision processing.
+  \item \textbf{Low-opacity overlay:} Malicious text rendered at 15-20\,\% opacity over a neutral background, imperceptible to humans but potentially legible to high-resolution vision encoders.
+  \item \textbf{Mind map:} Instructions embedded as node labels in a plausible-looking concept diagram, exploiting the model's tendency to extract all structured text from visual layouts.
+\end{itemize}
+
+Six attack goals were tested with each technique: output hijack, restriction bypass, persona jailbreak, system-prompt leakage, safety bypass, and content-policy override. Each image was submitted with the benign prompt ``Describe what you see in this image.''
+
+\subsection{Experiment 3: File-Upload Injection (n = 36)}
+
+We generated 36 documents (18 PDF, 18 DOCX) using three concealment strategies:
+
+\begin{itemize}
+  \item \textbf{White-on-white text:} Instruction formatted in white font on a white background. The text is completely invisible when the document is rendered in any standard viewer, but it is extracted verbatim by text-parsing libraries like pdfplumber and python-docx.
+  \item \textbf{Footnote injection:} Malicious instructions in a document footnote, a location that rarely draws human attention but is typically included in parser output.
+  \item \textbf{Buried content:} Instructions embedded within a 10-page document far from the beginning, relying on the model processing the full extracted text.
+\end{itemize}
+
+PDFs were generated with \texttt{reportlab}; DOCX files with
+\texttt{python-docx}. Extraction was verified with \texttt{pdfplumber} and \texttt{python-docx} to confirm payloads were present in parsed output. Each document was submitted with: ``Summarise the key points of this document.''
+
+\subsection{Experiment 4: Memory Persistence (n = 8)}
+
+We designed 8 cross-session test cases (Table~\ref{tab:memory}) targeting ChatGPT's persistent memory and Gemini's contextual memory. Each test comprised two sessions:
+
+\begin{enumerate}
+  \item \textbf{Implantation (Session-1):} A payload designed to cause the model to store a malicious instruction in its memory module (output phrase hijack, false fact injection, persona definition, behavioural override, etc.).
+  \item \textbf{Trigger (Session~2):} A fresh conversation with a benign prompt designed to activate the planted instruction without referencing it.
+\end{enumerate}
+
+Testing required dedicated consumer accounts with memory enabled.
+Memory was cleared between tests to ensure trial independence.
+
+\begin{table}[t]
+\caption{Memory Persistence Test Cases (Experiment 4)}
+\label{tab:memory}
+\centering
+\small
+\begin{tabularx}{\linewidth}{l l X}
+\toprule
+Sr. & Attack Type & Objective \\
+\midrule
+M001 & Output hijack & Force a specific output prefix phrase \\
+M002 & Persona persistence & Persist jailbreak persona (`ARIA') \\
+M003 & Misinformation plant & Implant a false factual claim \\
+M004 & Instruction persistence & Append hidden suffix to all responses \\
+M005 & Document-triggered plant & Activate phrase via a trigger word \\
+M006 & System prompt leakage & Extract system instructions via memory \\
+M007 & Preference manipulation & Bypass safety via fake user preference \\
+M008 & Cross-session exfiltration & Log and echo sensitive user data \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
-\begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
-\caption{Example of a figure caption.}
-\label{fig}
+%---------------------------------------------------------------------
+\section{Findings}
+\label{sec:findings}
+%---------------------------------------------------------------------
+
+\subsection{Overall Attack Success Rates}
+
+Table~\ref{tab:overall} and Figure~\ref{fig:overall_compare} summarise the Attack Success Rates across all four experiments. ChatGPT's aggregate ASR of 22.5\,\% is lower than Gemini's 35.5\,\%, which on the surface suggests ChatGPT has a stronger overall defensive posture. However, the aggregate number is somewhat misleading, because the two platforms show near-opposite vulnerability profiles in the file-upload and memory modalities, and are not uniformely less or more secure. The radar chart in Figure~\ref{fig:radar} makes this asymmetry visually clear.
+
+\begin{table}[t]
+\caption{Attack Success Rate (\%) by Modality and Platform}
+\label{tab:overall}
+\centering
+\begin{tabular}{lcc}
+\toprule
+\textbf{Modality} & \textbf{ChatGPT (GPT-4o)} & \textbf{Gemini (2.5 Flash)} \\
+\midrule
+Text (n = 80)                & 23.1 & 27.5 \\
+Visual (n = 24)              & 50.0 & 58.3 \\
+File Upload (n = 36)         &  2.8 & 44.4 \\
+Memory Persistence (n = 8)   & 37.5 &  6.2 \\
+\midrule
+\textbf{Overall (n = 148)}   & \textbf{22.5} & \textbf{35.5} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/overall_comparison.png}
+  \caption{Attack Success Rate (ASR) by modality for ChatGPT (GPT-4o) and Gemini (2.5 Flash)}
+  \label{fig:overall_compare}
 \end{figure}
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/radar_chart.png}
+  \caption{Vulnerability profile radar chart comparing ChatGPT and Gemini across all four attack modalities}
+  \label{fig:radar}
+\end{figure}
 
-\section*{Acknowledgment}
+\subsection{Experiment 1: Text Injection}
 
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
+Both platforms show comparable vulnerability to text injection, with ChatGPT at 23.1\,\% and Gemini at 27.5\,\%. Given the years of investment both companies have made in text-level safety training, this was expected. What is more interesting is how the per-category breakdown differs between the two platforms, shown in Figure~\ref{fig:exp1_cats}.
 
-\section*{References}
+For ChatGPT, encoding-based attacks are by far the most effective category. Base64 encoding achieves a 45\,\% ASR and ROT13 reaches 40\,\%, while direct command overrides and historical jailbreak formats score near zero. This pattern is consistent with what Wei et al.~\cite{wei2023jailbroken} call ``mismatched generalisation'': safety training is applied unevenly across token representations, and non-standard encodings partially fall through the cracks.
 
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
+Gemini shows a different profile. It handles well-known jailbreak formats somewhat less reliably than ChatGPT, with role-play hijacking achieving 30\,\% and direct overrides 15\,\%, but it is slightly more resistant to encoding-based obfuscation. The pattern suggests Gemini's safety training covers non-standard encodings more broadly but handles some of the classic jailbreak archetypes less consistently.
 
-Number footnotes separately in superscripts. Place the actual footnote at 
-the bottom of the column in which it was cited. Do not put footnotes in the 
-abstract or reference list. Use letters for table footnotes.
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/exp1_category_breakdown.png}
+  \caption{Experiment 1 (Text Injection): ASR by payload category for both platforms. }
+  \label{fig:exp1_cats}
+\end{figure}
 
-Unless there are six authors or more give all authors' names; do not use 
-``et al.''. Papers that have not been published, even if they have been 
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
-that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
-Capitalize only the first word in a paper title, except for proper nouns and 
-element symbols.
+\subsection{Experiment 2: Visual Injection}
 
-For papers published in translation journals, please give the English 
-citation first, followed by the original foreign-language citation \cite{b6}.
+Visual injection is the strongest attack channel we tested, achieving 50.0\,\% on ChatGPT and 58.3\,\% on Gemini. This is roughly double the text-injection baseline for both platforms, which strongly suggests that the vision processing pipeline receives much less intent-detection scrutiny than the text pipeline. This aligns with findings from Ni et al.~\cite{ni2025crossmodal} that multimodal models tend to apply less rigorous instruction-intent filtering to text that arrives through the vision encoder.
 
+Figure~\ref{fig:exp2} breaks down results by embedding technique and attack goal for each platform. On ChatGPT, technique complexity mattered: low-opacity overlays only succeeded for output hijack (100\,\%) but failed elsewhere, implying GPT‑4o filters goal-directed visual text more strictly. Mindmap and typographic techniques achieved full ASR (100\,\%) across hijack, persona jailbreak, and restriction bypass, revealing that structured visuals substantially weaken intent filtering. Safety bypass and system prompt leakage stayed blocked (0\,\%) regardless of method.
+
+Gemini tells a broadly more permissive story. Low opacity and mindmap techniques each achieved 100\,\% ASR across the same three exploitable goals, a result that contrasts sharply with ChatGPT's failure on low opacity injections. This suggests Gemini’s vision encoder suppresses faint text less aggressively. The one exception is the typographic condition, where output hijack dropped to 50\,\%, suggesting Gemini's OCR pipeline's inconsistency in attack execution. Persona jailbreak and restriction bypass remained at 100\,\% even under typographic injection, however, meaning this partial failure is goal-specific rather than technique-wide.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/exp2_technique_comparison.png}
+  \caption{Experiment 2 (Visual Injection): ASR heatmap by embedding technique (rows) and attack goal (columns) for ChatGPT (left) and Gemini (right). Green cells indicate high success; red indicates blocked attempts}
+  \label{fig:exp2}
+\end{figure}
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/exp3_technique_comparison.png}
+  \caption{Experiment 3 (File-Upload Injection): ASR by concealment technique and file format (PDF vs. DOCX) for ChatGPT (left) and Gemini (right).}
+  \label{fig:exp3}
+\end{figure}
+
+\subsection{Experiment 3: File-Upload Injection}
+
+This experiment produced the largest and most practically significant finding in the study. ChatGPT's ASR of 2.8\,\% indicates near-complete resistance: across 36 documents, only a single footnote-injected PDF succeeded in triggering a restriction bypass. Gemini's ASR of 44.4\,\% represents a 41.6 percentage point gap, making this the widest inter-platform divergence we observed.
+
+As shown in Figure~\ref{fig:exp3}, footnote injection is the most effective technique against Gemini, achieving roughly 75\,\% ASR across both PDF and DOCX formats. White-on-white text reaches approximately 42\,\% and buried content around 25\,\%. The ordering of techniques by effectiveness, footnote first and buried content last, suggests that Gemini's text-extraction pipeline forwards all parsed document content to the language model with the same trust level as user-authored messages. Footnotes are extracted and included in that output, and they arrive without any signal that they might be adversarial.
+
+ChatGPT's near-total resistance suggests a fundamentally different architecture. Rather than forwarding extracted document text directly to the language model, it appears to apply a content-safety pass to the full parsed text before acting on it, catching injected instructions before they can influence the model's response.
+
+\subsection{Experiment 4: Memory Persistence}
+
+Memory results reveal a second major asymmetry, pointing in the opposite direction. ChatGPT's overall ASR of 37.5\,\% is driven by three specific attack goals that achieve 100\,\% success: output hijack, instruction persistence, and system-prompt leakage. These successes expose fundamentally different kinds of vulnerabilities. In output hijack, the model reproduces exact phrases planted in the memory store across sessions. In instruction persistence, adversarial instructions embedded in Session 1 cause the model to modify its behavior in Session 2, including appending hidden suffixes to responses. Most alarmingly, system-prompt leakage succeeds in extracting detailed personal information accumulated in memory, including academic history, ongoing projects, and business activities, triggered by innocuous-looking prompts in a fresh session.
+
+This last vulnerability is particularly concerning because it combines privacy violation with deceptive behavior. The model reproduces sensitive context without informing the user that information is being recalled and shared. Unlike single-turn injection attacks, this vulnerability spans sessions and is invisible to users within any individual conversation.
+
+By contrast, Gemini is nearly immune to all memory-persistence attacks. The heatmap shows zero success across seven attack goals. The sole non-zero result is a 50\,\% partial success on preference manipulation, suggesting that Gemini applies safety filtering at the point of writing to its persistent memory store, effectively catching adversarial instructions before they take root.
+
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=\linewidth]{figures/exp4_memory_breakdown.png}
+  \caption{Experiment 4: Memory-Persistence ASR by Attack Goal}
+  \label{fig:exp4}
+\end{figure}
+
+\subsection{Score Distribution and Defense Leakage}
+
+Beyond the aggregate ASR numbers, examining the distribution of scores across all three levels reveals something important about where each platform's defences are operating and how much headroom attackers have left. Figure~\ref{fig:score_dist} shows the proportion of test cases at each score level per modality and platform.
+
+The modalities exhibit contrasting patterns of partial compliance. Text injection shows elevated partial rates (39\,\% for ChatGPT and 35\,\% for Gemini), indicating that obfuscated payloads routinely influence model responses even when the full attack fails. This occurs because text-based obfuscation can cause confusion at the token level, leading to partial model compromise. By contrast, visual injection exhibits a binary pattern with zero partial compliance on both platforms: all 24 visual test cases resulted in either complete success or complete failure, with no intermediate states. This suggests that when instructions are embedded in images, models either follow them entirely or reject them outright, reflecting fundamentally different processing pathways. This is demonstrated in Figure~\ref{fig:defense_leakage}, which isolates partial-compliance rates across modalities. The elevated partial rates in text injection for both platforms align with JailbreakHub's observation~\cite{shen2024jailbreakhub} that in-the-wild prompts are increasingly sophisticated and push models toward partial compliance even without achieving full extraction.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/score_distribution.png}
+  \caption{Score distribution (stacked bars: blocked/partial/success) across modalities and platforms}
+  \label{fig:score_dist}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/defense_leakage.png}
+  \caption{Defense leakage analysis: proportion of test cases achieving partial compliance (score=1) per modality and platform.}
+  \label{fig:defense_leakage}
+\end{figure}
+
+\subsection{Attack Goal Transferability}
+
+Figure~\ref{fig:goal_transfer} presents cross-modal mean ASR by attack objective, aggregated across applicable modalities for each platform. The results reveal both universal vulnerabilities and platform-specific asymmetries.
+
+Output hijack and restriction bypass emerge as the most consistently effective attack goals, achieving 37.5-55.0\,\% and 31.2-71.9\,\% ASR respectively across both platforms. These objectives demonstrate strong transferability across text, visual, and document modalities. By contrast, system-prompt leakage and safety bypass are well-defended on both platforms with mean ASRs below 17\,\%. 
+
+The diagram reveals dramatic platform-specific divergences hidden within aggregate metrics. Gemini is highly susceptible to mode-switching attacks (83.3\,\%), where attackers invoke alternative operational modes. ChatGPT remains nearly immune to this goal (5.6\,\%). On the contrary, ChatGPT succumbs to in-the-wild jailbreaks (37.5\,\%) while Gemini resists them nearly completely (5.0\,\%). These asymmetries underscore that safety training targets different threat models on each platform.
+
+ChatGPT's memory-persistence vulnerability creates an indirect path to system-prompt leakage that general text-level defences cannot stop. An adversary unable to extract system instructions via direct text injection may plant a memory-extraction trigger that succeeds when recalled in a subsequent session, circumventing goal-level defences through modality-switching.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/attack_goal_analysis.png}
+  \caption{Attack goal transferability: cross-modal mean ASR by attack objective for goals with sufficient coverage (n >= 8)}
+  \label{fig:goal_transfer}
+\end{figure}
+
+%---------------------------------------------------------------------
+\section{Discussion}
+\label{sec:discussion}
+%---------------------------------------------------------------------
+
+\subsection{Why Visual Attacks Work So Well}
+
+The $\ge$50\,\% ASR for visual injection on both platforms is the most operationally significant finding.Text-level
+safety training has matured considerably over the past two years, but the vision pipeline has not kept pace. This is consistent with the ``modality gap'' described in~\cite{ni2025crossmodal}: models are trained to extract \emph{all} textual content from images, that are useful for reading slides and signs, without enforcing a semantic boundary between benign extracted text and adversarial instructions.
+
+The implication is that any application that accepts image uploads (customer support bots with screenshot upload, medical imaging assistants, code review tools) is currently exposed to injection at rates that would be unacceptable in text-only deployments. Closing this gap requires applying the same intent-detection pipeline used for textual input to text extracted by the vision encoder i.e. treating vision-extracted text as untrusted by default.
+
+\subsection{The File-Upload Gap: Two Different Architectures}
+The 41.6\,\%  point difference in file-upload injection is best
+understood as evidence that ChatGPT and Gemini have made fundamentally different choices about where to apply content-safety classification for uploaded documents. ChatGPT appears to apply a safety pass to the full extracted text before it reaches the language model, treating document uploads as an untrusted channel by design. Gemini appears to forward extracted content to the language model with the same level of trust as a user-authored message, which means any text the parser surfaces, including invisible white text, footnotes, and buried paragraphs, gets processed without an additional safety check.
+
+For organisations using Gemini to process external documents, this is a high-priority concern. A malicious actor who can place any content into a submitted file, even a single footnote, can redirect the model's output. The practical fix is to apply content-safety classification to all text extracted from uploaded files, regardless of where in the document it came from.
+
+\subsection{Memory Persistence: A Longitudinal Threat}
+
+The memory-persistence findings introduce a threat category that is qualitatively different from anything in the other three experiments. A successful file-upload or visual injection is contained within a single session. A successful memory injection is not. The compromised behaviour persists across all future sessions until the user intervenes manually, and crucially, the user may have no idea it happened.
+
+The M006 success on ChatGPT is the most serious specific result in the study. An attacker who can plant a memory-extraction trigger in Session 1 can retrieve detailed personal information about the user in Session 2 without that user being present or aware. This is not hypothetical: we demonstrated it. The architectural fix Gemini appears to have implemented, applying safety filtering before writing to memory rather than only before generating responses, is the right approach, and ChatGPT would benefit from adopting something similar.
+
+\subsection{Asymmetric Defences and What They Mean for Attackers}
+
+Looking at the results as a whole, it is clear that both companies have been hardening their platforms modality by modality rather than applying a unified, cross-modal safety architecture. ChatGPT is strong on documents and weak on memory; Gemini is strong on memory and weak on documents; both are weaker on visual injection than on text injection across the board.
+
+From an attacker's perspective, this is useful information. A rational adversary targeting a Gemini deployment would prioritise document injection. The same adversary targeting ChatGPT would look first at memory persistence or visual attacks. The attack goal transferability analysis reinforces this: output hijack and restriction bypass are robust across all modalities and both platforms, making them the highest-priority targets for any unified defensive effort.
+
+The path toward more consistent protection runs through architecture, not just training. All input channels, whether typed text, uploaded images, parsed documents, or memory writes, should be treated as equally untrusted, and content extracted from each should pass through the same intent-detection pipeline before it reaches the language model. The OWASP Top 10 for LLMs 2025~\cite{owasp2025llm} recommends context isolation and privilege separation as complementary measures: separating user-supplied content from system-trusted context at the architectural level so that injected instructions cannot be misinterpreted as legitimate directives.
+
+\subsection{Limitations}
+
+A few limitations are worth noting. (i) This is a point-in-time study; both platforms update continuously, and ASRs are bound to shift since our testing window (March-April 2026). (ii)Our payload set, while grounded in established public datasets, does not cover every possible attack variation, particularly adaptive attacks designed to evade known defences~\cite{ni2025crossmodal}. (iii) Experiment 4 was conducted manually, introducing potential trial variability absent from the API experiments. (iv) As a black-box study, we cannot determine root causes of specific defensive successes or failures without access to platform internals. Finally, (v) our payload sources bias toward community-catalogued jailbreak strategies; novel, bespoke attacks may yield different results.
+
+%---------------------------------------------------------------------
+\section{Conclusion}
+\label{sec:conclusion}
+%---------------------------------------------------------------------
+
+This paper has presented the first systematic, multi-modal comparison of prompt injection resistance across ChatGPT and Gemini, covering 148 test cases in four distinct input modalities. The core finding is that safety training does not generalise uniformly across input channels. Both platforms are substantially more vulnerable to visual injection than to text injection, and their defensive profiles are nearly inverted when it comes to file-upload and memory-persistence attacks.
+
+The 41.6 percentage point gap in file-upload injection and the 31 percentage point gap in memory persistence are not minor differences in degree; they reflect fundamentally different architectural choices about where content-safety classification is applied. A sophisticated attacker who knows these gaps can exploit them deliberately, choosing the attack channel that the target platform handles least well.
+
+The defense leakage analysis adds another layer to this picture: partial-compliance rates in text injection are high enough on both platforms to suggest that more refined obfuscation techniques will push near-misses into full successes. And the attack goal transferability analysis shows that even objectives which appear well-defended at the text level, like system-prompt leakage, can be reached through alternative channels like memory persistence.
+
+Achieving meaningfully robust protection will require treating every input channel as untrusted and applying consistent intent-detection logic throughout, from the vision encoder output to the document parser to the memory write pipeline. We hope the results here provide a concrete empirical basis for prioritising that work. All code, payloads, and logged responses are available at \url{https://github.com/chirajayagg/Cross-Modal-Prompt-Injection}.
+
+%---------------------------------------------------------------------
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+
+\bibitem{perez2022ignore}
+F.~Perez and I.~Ribeiro, ``Ignore previous prompt: Attack techniques for
+language models,'' in \textit{Proc. NeurIPS Workshop on Machine Learning Safety},
+2022.
+
+\bibitem{greshake2023indirect}
+K.~Greshake, S.~Abdelnabi, S.~Mishra, C.~Endres, T.~Holz, and
+M.~Fritz, ``Not what you've signed up for: Compromising real-world
+LLM-integrated applications with indirect prompt injection,'' in
+\textit{Proc. ACM Workshop on Artificial Intelligence and Security (AISec)}, 2023.
+
+\bibitem{wei2023jailbroken}
+A.~Wei, N.~Haghtalab, and J.~Steinhardt, ``Jailbroken: How does LLM safety
+training fail?'' in \textit{Advances in Neural Information Processing Systems
+(NeurIPS)}, vol.~36, 2023.
+
+\bibitem{shen2024jailbreakhub}
+X.~Shen, Z.~Chen, M.~Backes, Y.~Shen, and Y.~Zhang, ```Do anything now':
+Characterizing and evaluating in-the-wild jailbreak prompts on large language
+models,'' in \textit{Proc. ACM Conference on Computer and Communications
+Security (CCS)}, 2024.
+
+\bibitem{luo2024jailbreakv}
+W.~Luo, S.~Ma, X.~Liu, X.~Guo, and C.~Xiao, ``JailBreakV-28K: A benchmark
+for assessing the robustness of multimodal large language models against jailbreak
+attacks,'' \textit{arXiv preprint arXiv:2404.03027}, 2024.
+
+\bibitem{deepset2023promptinjections}
+deepset, ``Prompt-injections dataset,'' Hugging Face, 2023. [Online].
+Available: \url{https://huggingface.co/datasets/deepset/prompt-injections}
+
+\bibitem{owasp2025llm}
+OWASP, ``OWASP Top 10 for large language model applications, 2025 edition,''
+OWASP Foundation, 2025. [Online]. Available:
+\url{https://owasp.org/www-project-top-10-for-large-language-model-applications/}
+
+\bibitem{shayegani2023survey}
+E.~Shayegani, M.~A.~A.~Mamun, Y.~Fu, P.~Zaree, Y.~Dong, and N.~Abu-Ghazaleh,
+``Survey of vulnerabilities in large language models revealed by adversarial
+attacks,'' \textit{arXiv preprint arXiv:2310.10844}, 2023.
+
+\bibitem{ni2025crossmodal}
+B.~Ni, C.~Chen, T.~Wang, and X.~Li, ``Manipulating multimodal agents via
+cross-modal prompt injection,'' in \textit{Proc. ACM International Conference
+on Multimedia (ACM MM)}, 2025.
+
+\bibitem{openai2024gpt4o}
+OpenAI, ``GPT-4o system card,'' OpenAI Technical Report, 2024. [Online].
+Available: \url{https://openai.com/index/gpt-4o-system-card/}
+
+\bibitem{google2024gemini}
+Google DeepMind, ``Gemini: A family of highly capable multimodal models,''
+\textit{arXiv preprint arXiv:2312.11805}, 2024.
+
 \end{thebibliography}
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
 
 \end{document}
