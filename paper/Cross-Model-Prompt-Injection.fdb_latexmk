@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1776142752 "/home/kandi/Cross-Modal-Prompt-Injection/paper/conference_101719.tex" "conference_101719.pdf" "conference_101719" 1776142756
+["pdflatex"] 1776146689 "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" "Cross-Model-Prompt-Injection.pdf" "Cross-Model-Prompt-Injection" 1776146693
   "/etc/texmf/web2c/texmf.cnf" 1771724814 475 c0e671620eb5563b2130f56340a5fde8 ""
   "/home/kandi/.texlive2021/texmf-var/web2c/pdftex/pdflatex.fmt" 1771893384 1405758 e7ec404be88b695170db178028be8735 ""
-  "/home/kandi/Cross-Modal-Prompt-Injection/paper/conference_101719.tex" 1776142747 43137 6dae51b3e3c15bb2fdf3d08bb5fcb907 ""
+  "/home/kandi/Cross-Modal-Prompt-Injection/paper/Cross-Model-Prompt-Injection.tex" 1776146680 43124 37c2942c3969f33fce83b309f6fabb09 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -114,9 +114,9 @@
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/usr/share/texmf/web2c/texmf.cnf" 1644012257 39432 7155514e09a3d69036fac785183a21c2 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1771893541 4379155 98693266ff65f58d9f98aff394de12d2 ""
-  "conference_101719.aux" 1776142756 11069 0dc2d89b79188021a4abe02fd9db858d "pdflatex"
-  "conference_101719.out" 1776142756 6407 fa9e5b77c887d4e3d9fb3b52fd21d051 "pdflatex"
-  "conference_101719.tex" 1776142747 43137 6dae51b3e3c15bb2fdf3d08bb5fcb907 ""
+  "Cross-Model-Prompt-Injection.aux" 1776146692 11069 0dc2d89b79188021a4abe02fd9db858d "pdflatex"
+  "Cross-Model-Prompt-Injection.out" 1776146692 6407 fa9e5b77c887d4e3d9fb3b52fd21d051 "pdflatex"
+  "Cross-Model-Prompt-Injection.tex" 1776146680 43124 37c2942c3969f33fce83b309f6fabb09 ""
   "figures/attack_goal_analysis.png" 1776141478 217730 24880af6e3e1fd21a5b237c660f8b9a0 ""
   "figures/defense_leakage.png" 1776140718 116448 056f3cc9da94a7226bc3026f9ecc172d ""
   "figures/exp1_category_breakdown.png" 1776137022 124695 903fd9d71e8432d5a379d4a458c9ca74 ""
@@ -128,7 +128,7 @@
   "figures/score_distribution.png" 1776140861 122352 0ad79107e53e5c5162fdc667fee570af ""
   "figures/threat_model.png" 1776132057 81900 2270cb6d5918b5007d1d0e829a00d1af ""
   (generated)
-  "conference_101719.aux"
-  "conference_101719.log"
-  "conference_101719.out"
-  "conference_101719.pdf"
+  "Cross-Model-Prompt-Injection.aux"
+  "Cross-Model-Prompt-Injection.log"
+  "Cross-Model-Prompt-Injection.out"
+  "Cross-Model-Prompt-Injection.pdf"
