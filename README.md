@@ -28,7 +28,7 @@ We structured our study around four experiments:
 | Visual Injection | 50.0% | 58.3% |
 | File Upload Injection | 2.8% | 44.4% |
 | Memory Persistence | 37.5% | 6.2% |
-| **Overall** | **22.5%** | **35.5%** |
+| **Overall** | **23.3%** | **35.5%** |
  
 The biggest finding is the **41.6 percentage point gap in file upload injection** ChatGPT blocked nearly all file-based attacks while Gemini followed injected instructions in nearly half of all cases. For memory persistence, the pattern flips: ChatGPT is vulnerable to behavioral and output hijack attacks across sessions, while Gemini showed near-complete resistance.
  
@@ -44,8 +44,7 @@ The biggest finding is the **41.6 percentage point gap in file upload injection*
 │   ├── exp4_memory_generator.py       # generates memory persistence test cases
 │   ├── run_exp1_exp2.py               # runs Exp 1 and 2 via API
 │   ├── run_exp3.py                    # runs Exp 3 via API
-│   ├── analyze.py                     # loads all responses and generates charts
-│   └── create_notebook.py             # generates analysis/analysis.ipynb
+│   └── analyze.py                     # loads all responses and generates all 10 figures
 │
 ├── payloads/                          # input payload CSVs per experiment
 ├── generated_images/                  # output of exp2 (typographic/low_opacity/mindmap)
@@ -55,11 +54,11 @@ The biggest finding is the **41.6 percentage point gap in file upload injection*
 │   └── gemini/                        # logged responses from Gemini 2.5 Flash
 │
 ├── analysis/
-│   ├── analysis.ipynb                 # main analysis notebook
+│   ├── analysis.ipynb                 # interactive notebook — all 10 figures + per-figure key findings
 │   └── figures/                       # exported charts used in the paper
 │
-├── paper/
-│   └── report.pdf                     # final term paper
+├── Term Paper/
+│   └── Cross-Model-Prompt-Injection.pdf   # final term paper
 │
 ├── setup.sh                           # one-command environment setup
 └── requirements.txt
