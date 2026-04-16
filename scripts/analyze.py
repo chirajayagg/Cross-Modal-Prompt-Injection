@@ -21,7 +21,7 @@ import pandas as pd
 
 warnings.filterwarnings("ignore")
 
-# ── Paths ─────────────────────────────────────────────────────────────────
+# paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RESP_DIR = os.path.join(BASE_DIR, "responses")
 FIGURES  = os.path.join(BASE_DIR, "analysis", "figures")
@@ -42,7 +42,7 @@ EXP_SHORT = {
     "exp4": "Memory",
 }
 
-# ── Colour palette ────────────────────────────────────────────────────────
+# colors
 C_GPT  = "#10A37F"   # OpenAI green
 C_GEM  = "#4285F4"   # Google blue
 C_SUCC = "#34A853"   # success green
@@ -62,9 +62,7 @@ plt.rcParams.update({
 })
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# DATA LOADING & METRICS
-# ════════════════════════════════════════════════════════════════════════════
+# --- data loading & metrics ---
 
 def load_responses() -> pd.DataFrame:
     """Load all response CSVs and return a single combined DataFrame."""
@@ -133,9 +131,7 @@ def _save(fig, name: str):
     print(f"  Saved → analysis/figures/{name}")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 01 - OVERALL COMPARISON BAR CHART
-# ════════════════════════════════════════════════════════════════════════════
+# fig 01 - overall comparison bar chart
 
 def plot_overall_comparison(df: pd.DataFrame):
     matrix = get_asr_matrix(df)
@@ -144,7 +140,6 @@ def plot_overall_comparison(df: pd.DataFrame):
     gpt_vals = [matrix["chatgpt"].get(e, 0) for e in EXPERIMENTS]
     gem_vals = [matrix["gemini"].get(e, 0)  for e in EXPERIMENTS]
 
-    # Compute overall
     gpt_overall = round(asr(df[df["platform"] == "chatgpt"]), 1)
     gem_overall  = round(asr(df[df["platform"] == "gemini"]),  1)
     gpt_vals.append(gpt_overall)
@@ -171,7 +166,6 @@ def plot_overall_comparison(df: pd.DataFrame):
         ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 1.0,
                 f"{bar.get_height():.1f}%", ha="center", fontsize=10, fontweight="bold")
 
-    # Delta annotations
     for i, (g, m) in enumerate(zip(gpt_vals, gem_vals)):
         diff = m - g
         color = "#DC2626" if diff > 10 else ("#059669" if diff < -10 else "#6B7280")
@@ -182,9 +176,7 @@ def plot_overall_comparison(df: pd.DataFrame):
     _save(fig, "overall_comparison.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 02 - ASR HEATMAP
-# ════════════════════════════════════════════════════════════════════════════
+# fig 02 - asr heatmap
 
 def plot_overall_heatmap(df: pd.DataFrame):
     matrix = get_asr_matrix(df)
@@ -214,7 +206,6 @@ def plot_overall_heatmap(df: pd.DataFrame):
     plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04).set_label("ASR (%)", fontsize=10)
     ax.spines[:].set_visible(False)
 
-    # Highlight biggest gaps
     for j, (g, m) in enumerate(zip(gpt_row, gem_row)):
         if abs(g - m) > 30:
             ax.add_patch(plt.Rectangle((j - 0.5, -0.5), 1, 2,
@@ -226,9 +217,7 @@ def plot_overall_heatmap(df: pd.DataFrame):
     _save(fig, "overall_heatmap.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 03 - RADAR CHART
-# ════════════════════════════════════════════════════════════════════════════
+# fig 03 - radar chart
 
 def plot_radar_chart(df: pd.DataFrame):
     matrix = get_asr_matrix(df)
@@ -266,9 +255,7 @@ def plot_radar_chart(df: pd.DataFrame):
     _save(fig, "radar_chart.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 04 - EXP1 CATEGORY BREAKDOWN
-# ════════════════════════════════════════════════════════════════════════════
+# fig 04 - exp1 category breakdown
 
 def plot_exp1_category_breakdown(df: pd.DataFrame):
     exp1 = df[df["experiment"] == "exp1"].copy()
@@ -329,9 +316,7 @@ def plot_exp1_category_breakdown(df: pd.DataFrame):
     _save(fig, "exp1_category_breakdown.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 05 - EXP2 TECHNIQUE x GOAL HEATMAP
-# ════════════════════════════════════════════════════════════════════════════
+# fig 05 - exp2 technique x goal heatmap
 
 def plot_exp2_technique_heatmap(df: pd.DataFrame):
     exp2 = df[df["experiment"] == "exp2"].copy()
@@ -385,9 +370,7 @@ def plot_exp2_technique_heatmap(df: pd.DataFrame):
     _save(fig, "exp2_technique_comparison.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 06 - EXP3 TECHNIQUE x FILE TYPE
-# ════════════════════════════════════════════════════════════════════════════
+# fig 06 - exp3 technique x file type
 
 def plot_exp3_technique_filetype(df: pd.DataFrame):
     exp3 = df[df["experiment"] == "exp3"].copy()
@@ -441,7 +424,6 @@ def plot_exp3_technique_filetype(df: pd.DataFrame):
         ax.set_title(title, fontsize=11, fontweight="bold", color=mc)
         ax.legend(fontsize=10)
 
-        # Add overall ASR line for this platform
         platform_overall = round(asr(exp3[exp3["platform"] == platform]), 1)
         ax.axhline(platform_overall, color=mc, lw=1.5, linestyle="--", alpha=0.7)
         ax.text(0.99, platform_overall + 1.5, f"{platform.title()} avg ({platform_overall}%)",
@@ -453,9 +435,7 @@ def plot_exp3_technique_filetype(df: pd.DataFrame):
     _save(fig, "exp3_technique_comparison.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 07 -  EXP4 MEMORY PERSISTENCE ATTACK GOAL HEATMAP
-# ════════════════════════════════════════════════════════════════════════════
+# fig 07 - exp4 memory persistence heatmap
 
 def plot_exp4_memory_heatmap(df: pd.DataFrame):
     exp4 = df[df["experiment"] == "exp4"].copy()
@@ -500,9 +480,7 @@ def plot_exp4_memory_heatmap(df: pd.DataFrame):
     _save(fig, "exp4_memory_breakdown.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 08 -  SCORE DISTRIBUTION
-# ════════════════════════════════════════════════════════════════════════════
+# fig 08 - score distribution
 
 def plot_score_distribution(df: pd.DataFrame):
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.5), sharey=True)
@@ -550,9 +528,7 @@ def plot_score_distribution(df: pd.DataFrame):
     _save(fig, "score_distribution.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 9 - DEFENSE LEAKAGE
-# ════════════════════════════════════════════════════════════════════════════
+# fig 09 - defense leakage
 
 def plot_defense_leakage(df: pd.DataFrame):
     exps  = EXPERIMENTS
@@ -588,9 +564,7 @@ def plot_defense_leakage(df: pd.DataFrame):
     _save(fig, "defense_leakage.png")
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# FIG 10 - ATTACK GOAL TRANSFERABILITY
-# ════════════════════════════════════════════════════════════════════════════
+# fig 10 - attack goal transferability
 
 def plot_attack_goal_analysis(df: pd.DataFrame):
     goal_col = "attack_goal" if "attack_goal" in df.columns else None
@@ -598,7 +572,7 @@ def plot_attack_goal_analysis(df: pd.DataFrame):
         print("  [SKIP] attack_goal_analysis: no attack_goal column.")
         return
 
-    # Filter to goals with sufficient data (n >= 8) to focus on cross-modal patterns
+    # only include goals with enough test cases to be meaningful
     all_goals = sorted(df[goal_col].dropna().unique())
     goals_filtered = []
     for goal in all_goals:
@@ -636,7 +610,6 @@ def plot_attack_goal_analysis(df: pd.DataFrame):
     ax.legend(fontsize=11, loc="upper left")
     ax.grid(axis="y", alpha=0.3, linestyle="--")
 
-    # Add value labels on bars
     for bar in list(b1) + list(b2):
         height = bar.get_height()
         if height > 0:
@@ -644,22 +617,17 @@ def plot_attack_goal_analysis(df: pd.DataFrame):
                     f"{height:.1f}%", ha="center", va="bottom",
                     fontsize=9, fontweight="bold")
 
-    # Add background zones
     ax.axhspan(60, 100, alpha=0.04, color="red", zorder=0)
     ax.axhspan(0, 25, alpha=0.04, color="green", zorder=0)
-    
-    # Add zone labels
-    ax.text(7.5, 75, "High Vulnerability", fontsize=10, color="#991B1B", 
+    ax.text(7.5, 75, "High Vulnerability", fontsize=10, color="#991B1B",
             fontweight="bold", alpha=0.6, transform=ax.transData, ha="left")
-    ax.text(7.5, 20, "Well Defended", fontsize=10, color="#166534", 
+    ax.text(7.5, 20, "Well Defended", fontsize=10, color="#166534",
             fontweight="bold", alpha=0.6, transform=ax.transData, ha="left")
 
     plt.tight_layout()
     _save(fig, "attack_goal_analysis.png")
 
-# ════════════════════════════════════════════════════════════════════════════
-# SUMMARY TABLE (printed to console)
-# ════════════════════════════════════════════════════════════════════════════
+# --- summary table ---
 
 def print_summary(df: pd.DataFrame):
     print("\n" + "=" * 70)
@@ -693,9 +661,6 @@ def print_summary(df: pd.DataFrame):
     print("=" * 70)
 
 
-# ════════════════════════════════════════════════════════════════════════════
-# MAIN
-# ════════════════════════════════════════════════════════════════════════════
 
 def main():
     print("=" * 60)
